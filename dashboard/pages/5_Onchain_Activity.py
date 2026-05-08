@@ -21,6 +21,17 @@ st.set_page_config(page_title="On-chain Activity", layout="wide")
 st.title("On-chain Activity")
 st.caption("BTC native activity (Blockchain.com Charts) + ETH proxy activity (DeFiLlama-derived flux). Abnormal-day flags overlaid on price.")
 
+with st.expander("Methodology note — ETH activity is a proxy on the free-tier stack"):
+    st.markdown(
+        "BTC on-chain features are taken directly from Blockchain.com Charts (`n-transactions`, "
+        "`n-unique-addresses`, `transaction-fees-usd`).\n\n"
+        "ETH on-chain features rely on a **DeFiLlama Ethereum-chain TVL flux proxy** because the "
+        "Etherscan free-tier `dailytx`, `dailyavggasprice`, and `dailynewaddress` endpoints require "
+        "Pro access. Activity *direction* is informative; absolute units differ from native chain "
+        "counters. A Pro Etherscan key would replace the proxy in `src/ingest/onchain_etherscan.py` "
+        "without other code changes."
+    )
+
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 if feats.empty:
     st.error("Run the pipeline first.")

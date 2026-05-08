@@ -22,6 +22,19 @@ st.set_page_config(page_title="Sentiment & Event Reaction", layout="wide")
 st.title("Sentiment & Event Reaction")
 st.caption("Fear & Greed vs price, lead-lag CCF, curated-event overlay, and per-event reaction anatomy.")
 
+with st.expander("Methodology note — how to read the lead-lag chart"):
+    st.markdown(
+        "The lead-lag chart shows the sample correlation between the daily change in the Fear & "
+        "Greed Index and the asset's daily return shifted by `lag` days.\n\n"
+        "- **Positive lag** would mean sentiment *leads* return (sentiment change at *t* correlates "
+        "with return at *t+lag*).\n"
+        "- **Negative lag** means sentiment *lags* return — sentiment is reacting to recent realized "
+        "price action.\n\n"
+        "Across all tracked assets the peak |correlation| occurs at **lag = −1**. This describes the "
+        "Fear & Greed proxy, which is constructed to weight recent price action heavily; it is not "
+        "predictive alpha and there is no look-ahead in the underlying features."
+    )
+
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 events = read_parquet_safe(PROCESSED_DIR / "events.parquet")
 ll = read_parquet_safe(PROCESSED_DIR / "lead_lag.parquet")

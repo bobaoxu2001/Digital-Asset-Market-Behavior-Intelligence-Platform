@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #0E1117; }
+    .col-title { fill: #8AA2C2; font-size: 14px; font-weight: 600; letter-spacing: 1px; }
+    .stage-bg { fill: #161B26; stroke: #2A3140; stroke-width: 1; rx: 10; }
+    .stage-title { fill: #F4F6FA; font-size: 18px; font-weight: 700; }
+    .item { fill: #C7D2E0; font-size: 13px; }
+    .arrow { stroke: #4C5870; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    .accent { fill: #5B8FF9; }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#4C5870"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="420"/>
+
+  <text x="40" y="40" class="col-title">DIGITAL ASSET MARKET BEHAVIOR INTELLIGENCE PLATFORM — METHODOLOGY FLOW</text>
+
+  <!-- Stage 1: Data Sources -->
+  <rect class="stage-bg" x="40" y="80" width="220" height="280"/>
+  <text x="60" y="115" class="stage-title">Data Sources</text>
+  <line x1="60" y1="125" x2="240" y2="125" stroke="#5B8FF9" stroke-width="2"/>
+  <text x="60" y="155" class="item">CoinGecko · yfinance</text>
+  <text x="60" y="180" class="item">Fear &amp; Greed Index</text>
+  <text x="60" y="205" class="item">DeFiLlama (TVL · stables)</text>
+  <text x="60" y="230" class="item">Blockchain.com Charts</text>
+  <text x="60" y="255" class="item">Etherscan / proxy</text>
+  <text x="60" y="280" class="item">FRED · GDELT</text>
+  <text x="60" y="305" class="item">Curated event calendar</text>
+  <text x="60" y="335" class="item" style="fill:#8AA2C2;font-size:11px">Daily · 2023-01 to today</text>
+
+  <!-- Stage 2: Feature Engineering -->
+  <rect class="stage-bg" x="300" y="80" width="240" height="280"/>
+  <text x="320" y="115" class="stage-title">Feature Engineering</text>
+  <line x1="320" y1="125" x2="520" y2="125" stroke="#5AD8A6" stroke-width="2"/>
+  <text x="320" y="155" class="item">Returns · realized vol</text>
+  <text x="320" y="180" class="item">Drawdown · vol z-scores</text>
+  <text x="320" y="205" class="item">Sentiment z-score · shifts</text>
+  <text x="320" y="230" class="item">TVL change (1d/7d/30d)</text>
+  <text x="320" y="255" class="item">Liquidity stress score</text>
+  <text x="320" y="280" class="item">On-chain activity index</text>
+  <text x="320" y="305" class="item">Macro · event flags</text>
+  <text x="320" y="335" class="item" style="fill:#8AA2C2;font-size:11px">~50 features per (date, asset)</text>
+
+  <!-- Stage 3: Analysis -->
+  <rect class="stage-bg" x="580" y="80" width="280" height="280"/>
+  <text x="600" y="115" class="stage-title">Analysis Layer</text>
+  <line x1="600" y1="125" x2="840" y2="125" stroke="#9270CA" stroke-width="2"/>
+  <text x="600" y="155" class="item" style="font-weight:600;fill:#F4F6FA">Regime classifier</text>
+  <text x="600" y="175" class="item" style="font-size:11.5px">Event-driven · Liquidity Stress · Risk-off</text>
+  <text x="600" y="192" class="item" style="font-size:11.5px">On-chain Spike · Momentum · Calm · Neutral</text>
+  <text x="600" y="222" class="item" style="font-weight:600;fill:#F4F6FA">Event study</text>
+  <text x="600" y="242" class="item" style="font-size:11.5px">CAR · vol ratio · sentiment shift</text>
+  <text x="600" y="259" class="item" style="font-size:11.5px">TVL &amp; on-chain reaction · impact score</text>
+  <text x="600" y="289" class="item" style="font-weight:600;fill:#F4F6FA">Lead-lag analysis</text>
+  <text x="600" y="309" class="item" style="font-size:11.5px">CCF, sentiment vs return, lag ∈ [-7, +7]</text>
+  <text x="600" y="335" class="item" style="fill:#8AA2C2;font-size:11px">Trailing-only, look-ahead controlled</text>
+
+  <!-- Stage 4: Outputs -->
+  <rect class="stage-bg" x="900" y="80" width="340" height="280"/>
+  <text x="920" y="115" class="stage-title">Outputs</text>
+  <line x1="920" y1="125" x2="1220" y2="125" stroke="#F6BD16" stroke-width="2"/>
+  <text x="920" y="155" class="item" style="font-weight:600;fill:#F4F6FA">Six-page Streamlit dashboard</text>
+  <text x="920" y="175" class="item" style="font-size:11.5px">Executive · Regime · Sentiment · Liquidity</text>
+  <text x="920" y="192" class="item" style="font-size:11.5px">On-chain · Strategy</text>
+  <text x="920" y="222" class="item" style="font-weight:600;fill:#F4F6FA">Research memo</text>
+  <text x="920" y="242" class="item" style="font-size:11.5px">Real numbers · documented limitations</text>
+  <text x="920" y="272" class="item" style="font-weight:600;fill:#F4F6FA">One-page case study</text>
+  <text x="920" y="292" class="item" style="font-size:11.5px">PDF · recruiter-facing</text>
+  <text x="920" y="322" class="item" style="font-weight:600;fill:#F4F6FA">Notebooks · interview guide</text>
+  <text x="920" y="335" class="item" style="fill:#8AA2C2;font-size:11px">Reproducible from parquet only</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M 260 220 L 300 220"/>
+  <path class="arrow" d="M 540 220 L 580 220"/>
+  <path class="arrow" d="M 860 220 L 900 220"/>
+
+</svg>

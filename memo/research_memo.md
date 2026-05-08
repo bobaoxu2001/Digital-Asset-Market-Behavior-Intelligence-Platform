@@ -15,7 +15,9 @@
 | 2 | Protocol Upgrade and Exchange events are associated with the largest mean event impact (1.44 and 0.86); ETF and CPI events show lower average impact (0.22 and 0.37) | Distinguish anticipated catalysts from genuine surprise events when sizing event-driven exposure |
 | 3 | Regime labels carry economically meaningful information about subsequent returns | Regime is a useful conditioning variable for any overlay strategy |
 | 4 | Joint occurrence of liquidity stress and abnormal on-chain activity coincided with the largest sample drawdowns (March 2023 SVB, August 2024 yen-carry unwind) | Monitor as a potential risk-management signal rather than as a contrarian buy trigger |
-| 5 | DeFi tokens (UNI, AAVE, LDO, MKR, CRV) systematically amplify event-driven moves vs. majors | Use DeFi basket for higher-beta event expressions when conviction is high |
+| 5 | DeFi tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors in the sample | Consider DeFi basket for higher-beta event expressions when conviction is high |
+
+> **Interpretation note.** Event-study results should be read as short-window market reactions associated with event categories, not as strict causal estimates. Other contemporaneous information may have moved markets in the same window.
 
 Charts referenced below are also viewable in the live dashboard. See `assets/screenshots/` for static previews.
 
@@ -123,7 +125,7 @@ ETH on-chain: **Etherscan's free-tier `stats` endpoints returned `NOTOK` (Pro-on
 
 1. **Don't trade Fear & Greed directionally on its own.** With every asset's peak lead-lag at −1 day, F&G is a confirmation tool, not an alpha. The right operational use is to threshold it into the regime classifier — F&G < 40 + drawdown < −15% is a clean Risk-off filter that the rule engine already uses.
 2. **Differentiate scheduled from surprise events when sizing event-driven exposure.** The cross-asset event-type ranking indicates where information is genuinely surprising. Calendar-driven events (FOMC, CPI, ETF launches) generated smaller short-window reactions in the sample, consistent with substantial pre-discounting.
-3. **DeFi tokens (UNI, AAVE, LDO, MKR, CRV) amplify event-driven moves.** The top-10 impact list disproportionately features DeFi names rather than majors, even after controlling for baseline volatility. Use this for higher-beta event expressions when conviction is high.
+3. **DeFi tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors in the sample.** The top-10 impact list disproportionately features DeFi names rather than majors, even after controlling for baseline volatility. Consider this when sizing higher-beta event expressions.
 4. **Liquidity stress combined with abnormal on-chain activity is a risk configuration to monitor or hedge.** Both signals coincided with the largest drawdowns in the sample. Treat their joint occurrence as a risk-management signal rather than a contrarian buy trigger.
 
 ### 10. Limitations

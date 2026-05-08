@@ -21,6 +21,20 @@ st.set_page_config(page_title="Strategy Insights", layout="wide")
 st.title("Strategy Insights")
 st.caption("Analyst-style synthesis: top events, event-type × asset heatmap, regime-conditional returns, and a What-Happened / Why-It-Matters / What-To-Watch panel.")
 
+with st.expander("Methodology note — impact score and non-causal interpretation"):
+    st.markdown(
+        "**Composite impact score** = `|cum_log_return(t, t+7)|` + `max(realized_vol_post / realized_vol_pre − 1, 0)`. "
+        "It captures both directional move and volatility expansion in a single non-negative number. "
+        "Severity from the curated calendar is **not** used as a weight, so subjectivity in the rubric "
+        "does not drive the ranking.\n\n"
+        "**Interpretation.** These figures are short-window market reactions associated with each event "
+        "category. They are descriptive, not strict causal estimates: other contemporaneous information "
+        "may have moved markets in the same window. ETF and CPI events show lower average short-window "
+        "impact in this sample, likely because many were anticipated before the event date or close to "
+        "consensus expectations — that does not mean those events are unimportant; it means the measured "
+        "event-window surprise was smaller."
+    )
+
 es = read_parquet_safe(PROCESSED_DIR / "event_study.parquet")
 typeasset = read_parquet_safe(PROCESSED_DIR / "event_study_typeasset.parquet")
 regime_cond = read_parquet_safe(PROCESSED_DIR / "regime_conditional.parquet")
