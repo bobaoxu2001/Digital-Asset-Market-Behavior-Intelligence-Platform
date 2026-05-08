@@ -26,7 +26,6 @@ from src.config import PROCESSED_DIR  # noqa: E402
 
 st.set_page_config(
     page_title="Digital Asset Market Behavior Intelligence",
-    page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded",
 )

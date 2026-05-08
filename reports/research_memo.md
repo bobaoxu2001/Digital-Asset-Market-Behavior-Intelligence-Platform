@@ -12,19 +12,19 @@
 | # | Finding | Strategy implication |
 |---|---|---|
 | 1 | Sentiment lags price by ~1 day across all 9 assets (peak corr at lag = −1, BTC +0.65 ⇨ MKR +0.33) | Use F&G as a *confirming* indicator, not an alpha — feed into the regime engine, not into a directional signal |
-| 2 | Protocol Upgrade and Exchange events drive the largest market reactions (mean impact 1.44 / 0.86); ETF and CPI rank lowest (0.22 / 0.37) | Pre-position around tech catalysts; fade scheduled-macro hype where information is already discounted |
+| 2 | Protocol Upgrade and Exchange events are associated with the largest mean event impact (1.44 and 0.86); ETF and CPI events show lower average impact (0.22 and 0.37) | Distinguish anticipated catalysts from genuine surprise events when sizing event-driven exposure |
 | 3 | Regime labels carry economically meaningful information about subsequent returns | Regime is a useful conditioning variable for any overlay strategy |
-| 4 | Joint occurrence of liquidity stress + abnormal on-chain activity coincided with the worst sample drawdowns (March 2023 SVB / Aug 2024 yen carry) | Treat the joint signal as a *fade-or-hedge* trigger, not a contrarian-buy |
+| 4 | Joint occurrence of liquidity stress and abnormal on-chain activity coincided with the largest sample drawdowns (March 2023 SVB, August 2024 yen-carry unwind) | Monitor as a potential risk-management signal rather than as a contrarian buy trigger |
 | 5 | DeFi tokens (UNI, AAVE, LDO, MKR, CRV) systematically amplify event-driven moves vs. majors | Use DeFi basket for higher-beta event expressions when conviction is high |
 
-📊 Charts referenced below are also viewable in the live dashboard — see `assets/screenshots/` for static previews.
+Charts referenced below are also viewable in the live dashboard. See `assets/screenshots/` for static previews.
 
 ---
 
 ### 1. Executive Summary
 
 - **Sentiment lags price by ~1 day, uniformly across all 9 assets.** Peak correlation between daily change in Fear & Greed and prior-day asset return ranges from **+0.33 (MKR) to +0.65 (BTC)** at lag = −1. Treat market sentiment as a *confirming* indicator, not a leading one.
-- **Protocol-upgrade and exchange-incident events generate the largest behavior reactions.** Mean composite impact score: Protocol Upgrade **1.44**, Exchange **0.86**, Regulation **0.74**, Exploit **0.62**. ETF and CPI events under-rank because their information was largely priced in pre-event.
+- **Protocol-upgrade and exchange-incident events are associated with the largest short-window reactions in the sample.** Mean composite impact score: Protocol Upgrade **1.44**, Exchange **0.86**, Regulation **0.74**, Exploit **0.62**. ETF and CPI events show lower average impact, consistent with substantial pre-event pricing of the information.
 - **Regime separation is economically meaningful.** For BTC, *Momentum* days (n=37) annualize to a hypothetical +349% return (caveat: small sample, illustrative not investable), while *Calm* days (n=237) return **−24% annualized**. Regime labels capture distinct behaviors, not noise.
 - **Current state (2026-05-08):** BTC in **Risk-off** regime; Fear & Greed = **38 (Fear)**; DeFi TVL = **$57.0B**; liquidity stress score **−0.89** (no acute stress).
 
@@ -105,7 +105,7 @@ Lead correlations (k > 0) are near zero across the board, often negative. **Impl
 7. CPI — 0.37
 8. ETF — 0.22
 
-ETFs rank lowest because the news was *priced in* over weeks of approval anticipation rather than in single-day reactions. The largest single event observations are clustered around Ethereum Pectra (May 2025) and the November 2024 US election outcome — both produced multi-week trends that show up as elevated post/pre realized-vol ratios.
+ETF events show lower average short-window impact, likely because major approval expectations were partially priced in over weeks of approval anticipation rather than concentrated into single-day reactions. The largest individual event observations are clustered around Ethereum Pectra (May 2025) and the November 2024 US election outcome; both produced multi-week trends that show up as elevated post-versus-pre realized-volatility ratios.
 
 ### 7. Liquidity & DeFi Participation Findings
 
@@ -122,9 +122,9 @@ ETH on-chain: **Etherscan's free-tier `stats` endpoints returned `NOTOK` (Pro-on
 ### 9. Strategy Implications
 
 1. **Don't trade Fear & Greed directionally on its own.** With every asset's peak lead-lag at −1 day, F&G is a confirmation tool, not an alpha. The right operational use is to threshold it into the regime classifier — F&G < 40 + drawdown < −15% is a clean Risk-off filter that the rule engine already uses.
-2. **Pre-position around Protocol Upgrades and Exchange events, not ETFs or CPI.** Cross-asset event-type ranking shows where information is genuinely surprising. Calendar-driven events (FOMC, CPI, ETF launches) trade smaller because they are pre-discounted.
+2. **Differentiate scheduled from surprise events when sizing event-driven exposure.** The cross-asset event-type ranking indicates where information is genuinely surprising. Calendar-driven events (FOMC, CPI, ETF launches) generated smaller short-window reactions in the sample, consistent with substantial pre-discounting.
 3. **DeFi tokens (UNI, AAVE, LDO, MKR, CRV) amplify event-driven moves.** The top-10 impact list disproportionately features DeFi names rather than majors, even after controlling for baseline volatility. Use this for higher-beta event expressions when conviction is high.
-4. **Liquidity stress + abnormal on-chain activity is the configuration to fade or hedge.** Both signals coincided with the worst drawdowns in the sample. Treat their joint occurrence as a hedge trigger rather than a contrarian buy.
+4. **Liquidity stress combined with abnormal on-chain activity is a risk configuration to monitor or hedge.** Both signals coincided with the largest drawdowns in the sample. Treat their joint occurrence as a risk-management signal rather than a contrarian buy trigger.
 
 ### 10. Limitations
 

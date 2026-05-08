@@ -77,9 +77,9 @@ if not g.empty:
 # ETH-specific note about Etherscan free tier limitation
 if asset == "ETH":
     st.caption(
-        "ℹ️ ETH on-chain proxies are derived from DeFiLlama Ethereum-chain TVL flux because Etherscan "
-        "stats endpoints (`dailytx`, `dailygasused`) require Pro tier. The activity *direction* is "
-        "informative; absolute units differ from native chain counters."
+        "Note: ETH on-chain proxies are derived from DeFiLlama Ethereum-chain TVL flux because the "
+        "Etherscan free-tier stats endpoints (`dailytx`, `dailygasused`) require Pro access. The "
+        "activity direction is informative; absolute units differ from native chain counters."
     )
 
 st.info(onchain_insight(feats, asset))
