@@ -19,6 +19,7 @@ from src.utils.io import read_parquet_safe
 
 st.set_page_config(page_title="On-chain Activity", layout="wide")
 st.title("On-chain Activity")
+st.caption("BTC native activity (Blockchain.com Charts) + ETH proxy activity (DeFiLlama-derived flux). Abnormal-day flags overlaid on price.")
 
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 if feats.empty:

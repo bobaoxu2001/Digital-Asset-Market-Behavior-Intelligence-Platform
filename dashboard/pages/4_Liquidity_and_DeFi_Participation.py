@@ -19,6 +19,7 @@ from src.utils.io import read_parquet_safe
 
 st.set_page_config(page_title="Liquidity & DeFi Participation", layout="wide")
 st.title("Liquidity & DeFi Participation")
+st.caption("Chain-level TVL stack, top-protocol breakdown, stablecoin supply, and the composite liquidity-stress score.")
 
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 chain_view = read_parquet_safe(PROCESSED_DIR / "chain_tvl_view.parquet")

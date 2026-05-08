@@ -20,6 +20,7 @@ from src.utils.io import read_parquet_safe
 
 st.set_page_config(page_title="Sentiment & Event Reaction", layout="wide")
 st.title("Sentiment & Event Reaction")
+st.caption("Fear & Greed vs price, lead-lag CCF, curated-event overlay, and per-event reaction anatomy.")
 
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 events = read_parquet_safe(PROCESSED_DIR / "events.parquet")

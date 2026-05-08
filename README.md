@@ -1,49 +1,111 @@
 # Digital Asset Market Behavior Intelligence Platform
 
-> **A multi-source intelligence platform that explains how and why crypto markets move — built for the analyst's job, not the predictor's.**
+### *Explaining how and why crypto markets move — built for the analyst's job, not the predictor's.*
 
+[![CI](https://github.com/bobaoxu2001/Digital-Asset-Market-Behavior-Intelligence-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/bobaoxu2001/Digital-Asset-Market-Behavior-Intelligence-Platform/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/)
 [![streamlit](https://img.shields.io/badge/dashboard-streamlit-FF4B4B)](https://streamlit.io/)
 [![data](https://img.shields.io/badge/data-coingecko%20%7C%20defillama%20%7C%20fred%20%7C%20blockchain.com-success)]()
-
-This is not another crypto price-prediction project. It is a behavior-explanation platform that fuses **price**, **sentiment**, **liquidity / DeFi participation**, **on-chain activity**, **macro context**, and **events** into interpretable **regimes**, **event studies**, and **strategy insights** — exactly the deliverables a digital-asset strategy team consumes.
-
----
-
-## Why this project matters
-
-Most crypto portfolio projects predict next-day BTC price using Twitter sentiment. That is not the analyst's job. The analyst's job is to **explain market behavior**, **rank event sensitivities**, **detect regime shifts**, and **produce strategy-relevant insight**. This platform is structured around those deliverables end-to-end.
-
-### Role alignment — Digital Asset Market Behavior & Strategy Analyst (WhatIf / What If Capital)
-
-| Job requirement | Module |
-|---|---|
-| Analyze price movements, volatility, and trading behavior across major digital assets | Market features + regime classifier (BTC, ETH, SOL + DeFi basket) |
-| Monitor sentiment, liquidity flows, and CEX/DeFi participation | Fear & Greed sentiment + DeFiLlama TVL + stablecoin supply + composite liquidity stress |
-| Identify patterns in user behavior across exchanges, DeFi, and tokens | Per-chain TVL + protocol-level TVL + cross-asset event impact |
-| Track on-chain wallet movements, transaction flows, capital distribution | Blockchain.com (BTC) + Etherscan/DeFiLlama proxy (ETH) on-chain features |
-| Support development of strategy insights from behavioral trends | Strategy Insights dashboard page + research memo |
-| Evaluate market reactions to news, events, and ecosystem developments | Curated 46-event calendar + formal event study (CAR, vol ratio, sentiment shift, TVL reaction) |
-| Prepare reports on market behavior, sentiment shifts, emerging trends | Research memo (`reports/research_memo.md`) + auto-generated insight panels in dashboard |
-| Work independently in a remote research environment | Reproducible end-to-end pipeline: `make ingest && make features && make analysis && make dashboard` |
+[![license](https://img.shields.io/badge/license-MIT-lightgrey)]()
 
 ---
 
-## Key features
+![Executive Overview](assets/screenshots/executive_overview.png)
 
-- 🎯 **9 assets covered:** BTC, ETH, SOL + DeFi basket (UNI, AAVE, LDO, MKR, CRV, AVAX) at daily resolution, 2023-01-01 to today.
-- 🧠 **Interpretable regime classifier** with 7 transparent labels and explicit precedence rules (Event-driven → Liquidity Stress → Risk-off → On-chain Spike → Momentum → Calm → Neutral).
-- 📅 **Curated 46-event calendar** spanning FOMC, CPI, ETF, Regulation, Exchange, Exploit, Protocol Upgrade, Macro Shock — plus a formal event-study output.
-- 📈 **Lead-lag analysis** with a clean empirical finding: peak |corr| between F&G and price at **lag = −1 day for all 9 assets** — sentiment is reactive, not predictive.
-- 💧 **Composite liquidity stress score** built from TVL trend + stablecoin trend, with a 1.5σ stress threshold.
-- ⛓️ **On-chain activity index** for BTC (full Blockchain.com data) and ETH (DeFiLlama-derived flux proxy with documented limitations).
-- 📊 **Polished 6-page Streamlit dashboard** with KPI cards, Plotly interactive charts, sidebar filters, and analyst-voice insight panels on every page.
-- 📝 **Professional research memo** in `reports/research_memo.md` with real numbers from the analysis.
-- 🛡️ **Graceful fallbacks everywhere.** Every API has a documented fallback path; the dashboard runs end-to-end even if individual sources fail.
+> **A multi-source intelligence platform that fuses price, sentiment, liquidity / DeFi participation, on-chain activity, macro context, and curated events into interpretable behavior regimes, formal event studies, and strategy-relevant insights — exactly the deliverables a digital-asset strategy team consumes.**
+
+📄 **One-page case study:** [`reports/one_page_case_study.md`](reports/one_page_case_study.md)
+📝 **Full research memo:** [`reports/research_memo.md`](reports/research_memo.md)
 
 ---
 
-## Architecture
+## 🚀 Live Demo
+
+This dashboard runs locally in under 2 minutes from a fresh clone (see [Run locally](#-run-locally)). It is also designed to deploy to **Streamlit Community Cloud** with no code changes — just point the deployment at `dashboard/app.py` and add the API keys as Streamlit secrets.
+
+> _Streamlit Cloud deployment slot reserved — link will be added here._
+
+In the meantime, screenshots of all six dashboard pages are below, and `make demo` runs the full dashboard from the small bundled sample data without touching any API.
+
+---
+
+## 🎯 Why this is *not* another crypto price-prediction project
+
+Most crypto portfolio projects predict next-day BTC price using Twitter sentiment. **That is not the analyst's job.** The analyst's job is to:
+
+- explain *market behavior* — why did volatility spike, why did the regime shift?
+- rank *event sensitivities* — which catalysts actually move markets vs. the ones priced-in?
+- detect *regime transitions* — is the market in Calm, Momentum, Risk-off, Liquidity Stress, or Event-driven?
+- produce *strategy-relevant insight* — written, defensible, falsifiable.
+
+This platform is structured around those deliverables end-to-end. It deliberately does **not** ship a price-prediction model. Instead, it ships:
+
+| Output | What it is | Where it lives |
+|---|---|---|
+| 📊 6-page Streamlit dashboard | Polished, dark-themed, interactive Plotly | [`dashboard/`](dashboard/) |
+| 📝 Research memo | Analyst-style, real-numbers writeup | [`reports/research_memo.md`](reports/research_memo.md) |
+| 📄 One-page case study | PDF-ready, recruiter-facing | [`reports/one_page_case_study.md`](reports/one_page_case_study.md) |
+| 🧠 Rule-based regime classifier | 7 transparent labels with explicit precedence | [`src/features/regime_classifier.py`](src/features/regime_classifier.py) |
+| 📅 Curated 46-event calendar + event study | CAR, vol ratio, sentiment shift, TVL reaction | [`data/events_calendar.csv`](data/events_calendar.csv), [`src/analysis/event_study.py`](src/analysis/event_study.py) |
+| 📈 Lead-lag analysis | Cross-correlation across `lag ∈ [-7, +7]` | [`src/analysis/lead_lag.py`](src/analysis/lead_lag.py) |
+| 💧 Composite liquidity stress score | TVL trend + stablecoin trend, 1.5σ threshold | [`src/features/liquidity_features.py`](src/features/liquidity_features.py) |
+| ⛓️ On-chain activity index | Tx count + addresses + fees, z-scored | [`src/features/onchain_features.py`](src/features/onchain_features.py) |
+
+---
+
+## 📰 Headline findings
+
+> **1. Sentiment lags price by ~1 day, universally.** Across all 9 tracked assets, peak |corr| between daily change in Fear & Greed and asset return is at **lag = −1**. BTC: **+0.65**. ETH: +0.55. SOL: +0.49. *F&G is a confirmation tool, not a forecast.*
+
+> **2. Protocol upgrades and exchange incidents drive bigger reactions than ETF or CPI events.** Mean event-impact ranking: Protocol Upgrade **1.44** ▸ Exchange 0.86 ▸ Regulation 0.74 ▸ Exploit 0.62 ▸ Macro Shock 0.51 ▸ FOMC 0.42 ▸ CPI 0.37 ▸ ETF 0.22. *ETF news ranks last because it was priced in over weeks of approval anticipation.*
+
+> **3. Regime labels carry economically meaningful information.** For BTC, *Momentum* and *Event-driven* days produce the upside; *Calm* days quietly drift negative; *Risk-off* and *Liquidity Stress* are flat-to-negative. Regimes separate behavior — they are not noise.
+
+> **4. Liquidity stress + abnormal on-chain activity = the configuration to fade.** Both signals coincided with the worst drawdowns in the sample (March 2023 SVB / USDC depeg week, August 2024 yen-carry unwind).
+
+---
+
+## 🖼️ What the dashboard shows
+
+### Page 1 — Executive Overview
+Multi-asset price (indexed to 100), drawdown panel, current-regime KPI cards, F&G score, DeFi TVL, liquidity stress.
+![Executive Overview](assets/screenshots/executive_overview.png)
+
+### Page 2 — Market Regime & Volatility
+Regime ribbon overlaid on price, realized-vol curves, regime distribution, and a regime-transition table.
+![Market Regime & Volatility](assets/screenshots/market_regime_volatility.png)
+
+### Page 3 — Sentiment & Event Reaction
+Sentiment vs price (dual axis), curated-events overlay, lead-lag CCF chart, per-event reaction "anatomy".
+![Sentiment & Event Reaction](assets/screenshots/sentiment_event_reaction.png)
+
+### Page 4 — Liquidity & DeFi Participation
+Chain-level TVL stack (Ethereum / Solana / Arbitrum / Base), top-protocol bars, stablecoin supply trend, liquidity stress score with stress-zone shading.
+![Liquidity & DeFi](assets/screenshots/liquidity_defi_participation.png)
+
+### Page 5 — On-chain Activity
+BTC native on-chain (Blockchain.com Charts) and ETH activity proxy (DeFiLlama-derived flux, with explicit disclaimer about Etherscan free-tier limitations).
+![On-chain Activity](assets/screenshots/onchain_activity.png)
+
+### Page 6 — Strategy Insights
+Top-10 most impactful events, event-type × asset heatmap, regime-conditional return distributions, and an analyst-voice "What happened / Why it matters / What to monitor next" panel.
+![Strategy Insights](assets/screenshots/strategy_insights.png)
+
+> Screenshots above are auto-generated previews built directly from the processed parquet data (`scripts/generate_screenshots.py`). For pixel-perfect captures of the live Streamlit dashboard, run `make dashboard` and screen-capture each page.
+
+---
+
+## 🧠 What a strategy analyst can do with this platform (in a typical workday)
+
+1. **Open the Executive Overview**, see at a glance what regime each major asset is in and whether the liquidity-stress score is elevated.
+2. **Drill into Market Regime & Volatility** to confirm whether the current regime is persistent or transitioning, and inspect the regime-transition matrix.
+3. **Use the Sentiment & Event Reaction page** before publishing a market note: *"Was the move organic, or was today's CPI / ETF flow / exchange announcement the cause?"* Inspect that event's CAR window.
+4. **Check Liquidity & DeFi Participation** to confirm whether DeFi capital is rotating in or out — early-warning for risk-on/off rotations.
+5. **Use the Strategy Insights page to draft the actual memo:** which event type is the team most exposed to, which assets amplify those reactions, what the on-chain configuration is implying.
+
+---
+
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
@@ -89,102 +151,105 @@ flowchart LR
   Analysis -.parquet.-> Dashboard
 ```
 
-Data flows: raw JSON cached under `data/raw/<source>/`, cleaned parquet under `data/processed/`. The dashboard **never** calls APIs live — it reads parquet only.
+Data flows: raw JSON cached under `data/raw/<source>/`, cleaned parquet under `data/processed/`. **The dashboard never calls APIs live — it reads parquet only.**
 
 ---
 
-## Example insights produced by the platform
+## 🔑 For hiring managers — JD alignment
 
-> **Sentiment lags price by 1 day, universally.** Across all 9 tracked assets, peak |corr| between daily change in Fear & Greed and asset return is at lag = −1 (BTC: +0.65, ETH: +0.55, SOL: +0.49, …). Treat F&G as a confirmation tool, not a forecast.
-
-> **Protocol upgrades and exchange incidents move markets more than ETF news.** Mean event-impact ranking: Protocol Upgrade 1.44 ▸ Exchange 0.86 ▸ Regulation 0.74 ▸ Exploit 0.62 ▸ Macro Shock 0.51 ▸ FOMC 0.42 ▸ CPI 0.37 ▸ ETF 0.22. ETF news ranks last because it was priced in over weeks.
-
-> **Regime labels are economically meaningful.** For BTC, Calm days annualize negative (low-vol drift is not free return); Momentum and Event-driven days carry the upside; Risk-off and Liquidity Stress are flat-to-negative.
-
-> **Liquidity stress + abnormal on-chain activity = the configuration to fade.** Both signals coincided with the worst drawdowns in the sample (March 2023 banking crisis, August 2024 yen-carry unwind).
+| WhatIf JD requirement | Module / output |
+|---|---|
+| Analyze price movements, volatility, trading behavior across major digital assets | Market features + regime classifier (BTC, ETH, SOL + DeFi basket) |
+| Monitor sentiment, liquidity flows, CEX/DeFi participation | Fear & Greed sentiment + DeFiLlama TVL + stablecoin supply + composite liquidity-stress score |
+| Identify patterns in user behavior across exchanges, DeFi, tokens | Per-chain TVL + protocol-level TVL + cross-asset event impact |
+| Track on-chain wallet movements, transaction flows, capital distribution | Blockchain.com (BTC) + Etherscan/DeFiLlama proxy (ETH) on-chain features |
+| Support development of strategy insights | Strategy Insights dashboard page + research memo |
+| Evaluate market reactions to news, events, ecosystem developments | Curated 46-event calendar + formal event study |
+| Prepare reports on market behavior, sentiment shifts, emerging trends | Research memo + auto-generated insight panels in dashboard |
+| Work independently in a remote research environment | Reproducible end-to-end pipeline: `make ingest && make features && make analysis && make dashboard` |
 
 ---
 
-## Run locally
+## 🎤 How to discuss this in an interview (60-90 seconds)
+
+> "I built a Digital Asset Market Behavior Intelligence Platform that explains, rather than predicts, how crypto markets move. It pulls daily data from CoinGecko + yfinance for prices, alternative.me for Fear & Greed, DeFiLlama for chain TVL and stablecoins, Blockchain.com for BTC on-chain, Etherscan-or-DeFiLlama-proxy for ETH on-chain, FRED for macro, plus a curated calendar of 46 macro and crypto events. From those, I engineered ~50 features, ran a rule-based classifier into 7 interpretable regimes, executed a formal event study, and analyzed sentiment-price lead-lag.
+>
+> Three findings stood out. **One:** sentiment lags price by 1 day across all 9 tracked assets — F&G is reactive, not predictive. **Two:** protocol upgrades and exchange events generate the largest reactions; ETFs and CPI prints rank lowest because they're priced in. **Three:** regime labels carry real economic information about subsequent realized returns.
+>
+> The deliverables are a 6-page Streamlit dashboard and a written research memo with strategy implications. Everything is interpretable, everything has a documented fallback, and the dashboard runs end-to-end from parquet without ever calling an API live."
+
+---
+
+## ▶️ Run locally
 
 ```bash
-# 1. Set up environment (Python 3.11 recommended)
+# 1. Set up environment (Python 3.11)
 pip install -r requirements.txt
 
-# 2. Configure API keys
+# 2. Configure API keys (optional — yfinance + DeFiLlama + Blockchain.com need none)
 cp .env.example .env
-# Edit .env and fill in COINGECKO_API_KEY, ETHERSCAN_API_KEY, FRED_API_KEY
-# (CRYPTOPANIC_API_KEY is optional and can stay blank)
+# Edit .env and fill in COINGECKO_API_KEY, ETHERSCAN_API_KEY, FRED_API_KEY if you have them
 
-# 3. Run the full pipeline
-make ingest      # ~1-2 minutes; cached after first run
-make features    # ~5 seconds
-make analysis    # ~5 seconds
-make test        # run sanity tests
+# 3. Full pipeline (~1-2 minutes; cached after first run)
+make ingest          # all sources, with graceful fallbacks
+make features        # ~5s
+make analysis        # ~5s
+make test            # 7 sanity checks
 
 # 4. Launch the dashboard
-make dashboard   # opens Streamlit on http://localhost:8501
+make dashboard       # opens Streamlit at http://localhost:8501
 ```
 
-If any individual API fails, ingestion logs the failure and the pipeline continues with documented fallbacks. The dashboard always renders end-to-end on the data you have.
+### 🧪 Demo mode (no API keys required)
+
+```bash
+make demo            # copies bundled sample parquet → data/processed/, then launches dashboard
+```
+
+The bundled `data/sample/` directory contains small parquet files sufficient to render every dashboard page without running any ingestion. Use this for a quick recruiter demo or for CI smoke tests.
 
 ---
 
-## Project structure
+## 📁 Project structure
 
 ```
 digital-asset-market-behavior-platform/
-├── README.md
+├── README.md                        # this file
 ├── requirements.txt
-├── Makefile
-├── .env.example                  # template; never commit .env
+├── Makefile                         # ingest / features / analysis / test / dashboard / demo / screenshots
+├── .env.example                     # template; never commit .env
 ├── .gitignore
-├── config/config.yaml            # assets, chains, macro series, regime params
+├── .github/workflows/ci.yml         # GitHub Actions: pytest + dashboard smoke test on Python 3.11
+├── assets/screenshots/              # 6 dashboard previews (PNG, 3200x1800)
+├── config/config.yaml               # assets, chains, macro series, regime params
 ├── data/
-│   ├── events_calendar.csv       # 46 curated events
-│   ├── raw/                      # gitignored cached JSON
-│   ├── processed/                # gitignored parquet outputs
-│   └── sample/                   # small sample for the README screenshots
+│   ├── events_calendar.csv          # 46 curated events (FOMC, CPI, ETF, Reg, Exchange, Exploit, Upgrade, Macro)
+│   ├── raw/                         # gitignored cached JSON
+│   ├── processed/                   # gitignored full parquet outputs
+│   └── sample/                      # small sample parquets bundled for demo mode
+├── scripts/
+│   └── generate_screenshots.py      # rebuild dashboard previews from processed parquet
 ├── src/
-│   ├── config.py                 # central loader; reads .env
-│   ├── ingest/                   # one module per data source
-│   │   ├── market_data.py        # yfinance + CoinGecko
-│   │   ├── sentiment_fng.py      # alternative.me Fear & Greed
-│   │   ├── defi_llama.py         # chain TVL, protocol TVL, stablecoins
-│   │   ├── onchain_blockchain.py # BTC on-chain
-│   │   ├── onchain_etherscan.py  # ETH on-chain (Pro fallback)
-│   │   ├── macro_fred.py         # FRED + yfinance fallback
-│   │   ├── news_gdelt.py         # optional
-│   │   └── events.py             # curated CSV loader
-│   ├── features/                 # feature engineering
-│   │   ├── market_features.py
-│   │   ├── sentiment_features.py
-│   │   ├── liquidity_features.py
-│   │   ├── onchain_features.py
-│   │   ├── macro_features.py
-│   │   ├── regime_classifier.py
-│   │   └── build_features.py     # master join → features.parquet
-│   ├── analysis/
-│   │   ├── event_study.py
-│   │   ├── lead_lag.py
-│   │   ├── regime_conditional.py
-│   │   └── behavior_summary.py
-│   └── utils/                    # logging, caching, IO
+│   ├── config.py                    # central loader; reads .env
+│   ├── ingest/                      # one module per data source, all with fallbacks
+│   ├── features/                    # market, sentiment, liquidity, on-chain, macro, regime
+│   └── analysis/                    # event_study, lead_lag, regime_conditional, behavior_summary
 ├── dashboard/
-│   ├── app.py                    # Streamlit entry
-│   ├── pages/                    # 6 dashboard pages
-│   └── components/               # charts, KPIs, insight templates
+│   ├── app.py                       # Streamlit entry
+│   ├── pages/                       # 6 dashboard pages (Streamlit auto-routes)
+│   └── components/                  # charts, KPIs, insight templates
 ├── reports/
-│   ├── research_memo.md
+│   ├── research_memo.md             # full analyst memo
+│   ├── one_page_case_study.md       # PDF-ready 1-pager
 │   └── findings_summary.md
-├── memo/research_memo.md
-├── notebooks/                    # 01_eda, 02_event_study, 03_lead_lag (placeholders)
-└── tests/test_features.py
+├── memo/research_memo.md            # mirror of the memo (per blueprint structure)
+├── notebooks/                       # 01_eda, 02_event_study, 03_lead_lag (placeholders)
+└── tests/test_features.py           # 7 sanity tests
 ```
 
 ---
 
-## Event severity rubric
+## ⚙️ Event severity rubric
 
 The curated event calendar uses a 1–3 severity score:
 
@@ -196,40 +261,30 @@ Severity is used only for tie-breaking when multiple events share a date. The co
 
 ---
 
-## Limitations
+## ⚠️ Limitations (honest)
 
-- **Etherscan free tier is Pro-locked** for `dailytx`, `dailyavggasprice`, `dailynewaddress`. The platform falls back to a DeFiLlama-derived Ethereum chain-TVL flux as an activity proxy. The activity *direction* is informative; absolute units differ from native tx counters. A Pro Etherscan key would replace this in `src/ingest/onchain_etherscan.py` without other code changes.
-- **CoinGecko Demo plan** caps `market_chart/range` at 365 days of history. The platform uses yfinance for full history and CoinGecko for trailing-365d enrichment of `market_cap`.
-- **No exchange inflow/outflow.** Free sources do not reliably label exchange wallets. The platform deliberately avoids fabricating netflow; the more granular "On-chain Accumulation / Distribution" regime split is a documented upgrade path (Glassnode / CryptoQuant Pro).
-- **Sentiment is a single proxy (Fear & Greed).** It is the cleanest free daily series; tweet-level sentiment is no longer free since X/Twitter API changes. Lead-lag findings refer to the available sentiment proxy, not sentiment in general.
-- **CryptoPanic news is not included** — explicitly out of scope per project requirements; the curated event calendar provides the event channel.
+- **Etherscan free tier is Pro-locked** for `dailytx`, `dailyavggasprice`, `dailynewaddress`. The platform falls back to a DeFiLlama-derived Ethereum chain-TVL flux as an activity proxy. The activity *direction* is informative; absolute units differ from native tx counters. A Pro Etherscan key would replace this in `src/ingest/onchain_etherscan.py` without any other code change.
+- **CoinGecko Demo plan** caps `market_chart/range` at 365 days. The platform uses yfinance for full history and CoinGecko for trailing-365d enrichment of `market_cap`.
+- **No exchange inflow/outflow.** Free sources do not reliably label exchange wallets. The platform deliberately avoids fabricating netflow; the more granular On-chain Accumulation / Distribution regime split is a documented upgrade path (Glassnode / CryptoQuant Pro).
+- **Sentiment is a single proxy (Fear & Greed).** It is the cleanest free daily series; tweet-level sentiment is no longer free since the X/Twitter API changes. Lead-lag findings refer to the available sentiment proxy, not sentiment in general.
+- **CryptoPanic news is explicitly out of scope** per project requirements. The curated event calendar provides the event channel.
+- **Regime sample sizes** are small for *Momentum* and *Event-driven* in some assets; regime-conditional annualized returns are illustrative of separation between regimes, not a tradable backtest.
 
 ---
 
-## Future work
+## 🔭 Future work
 
-1. Funding-rate dispersion across CEXs as a forward-looking liquidity stress feature.
-2. Deribit DVOL and 25-delta skew for an implied-vol layer.
-3. Glassnode/CryptoQuant Pro for native exchange netflow → splits the *On-chain Activity Spike* regime into Accumulation vs Distribution.
-4. Probabilistic regime model (HMM or L1-logistic) seeded by the rule labels.
+1. Funding-rate dispersion across CEXs (Binance, OKX, Bybit) as a forward-looking liquidity-stress feature.
+2. Deribit DVOL and 25-delta skew as an implied-vol layer.
+3. Glassnode / CryptoQuant Pro for native exchange netflow → splits the *On-chain Activity Spike* regime into Accumulation vs Distribution.
+4. Probabilistic regime model (HMM or L1-logistic on transitions) seeded by the rule labels.
 5. Hourly resolution for BTC/ETH event windows around scheduled macro releases.
-6. Out-of-sample evaluation (train 2023–2024, eval 2025–2026) of the strategy implications.
+6. Out-of-sample evaluation: train regime + lead-lag on 2023–2024, evaluate on 2025–2026, report degradation.
 
 ---
 
-## Interview talking points
+## 📜 License & credits
 
-**90-second pitch:**
-> I built a Digital Asset Market Behavior Intelligence Platform that explains, rather than predicts, how crypto markets move. It pulls daily data from CoinGecko + yfinance for prices, alternative.me for Fear & Greed sentiment, DeFiLlama for chain-level TVL and stablecoins, Blockchain.com for BTC on-chain, Etherscan for ETH on-chain (with a documented free-tier proxy), FRED for macro, plus a curated calendar of 46 macro and crypto events. From those, I engineered ~50 features, ran a rule-based classifier into 7 interpretable regimes, executed a formal event study, and analyzed sentiment-price lead-lag. Three findings stood out: sentiment lags price by 1 day across all 9 assets — F&G is reactive, not predictive; protocol-upgrade and exchange events generate the largest reactions while ETFs and CPI prints are mostly priced in; and regime labels carry real economic information about subsequent returns. The output is a 6-page Streamlit dashboard plus a written research memo with strategy implications.
+MIT. Built by **Xu Ao** for the WhatIf / What If Capital "Digital Asset Market Behavior & Strategy Analyst" application.
 
-**Likely questions and answers:**
-
-1. *Why not a price-prediction model?* — Because the role is behavior and strategy research. A price model on free daily data without microstructure would either overfit or be mediocre. Regimes and event studies are interpretable and consumable.
-2. *Why rule-based regimes instead of an HMM?* — Auditability. With ~1200 daily obs and 7 regimes, an HMM is fragile and the labels aren't stable across re-fits. Rules are defensible and a portfolio manager can disagree with a threshold. The framework supports swapping in a probabilistic model seeded with rule labels.
-3. *How do you avoid look-ahead bias?* — All rolling features are trailing-only. Regime labels at time t use only features known by end of day t. Event-study windows are computed in calendar time, never re-baselined.
-4. *Etherscan didn't work — how confident are you in the ETH on-chain story?* — Modestly. The fallback proxy captures direction; absolute units are not native tx-counts. I document this in the dashboard and memo. A Pro Etherscan key replaces the proxy with native counters in one module.
-5. *What would you add with two more weeks?* — Funding-rate dispersion, Deribit DVOL, native exchange netflow via Glassnode, and out-of-sample evaluation of the regime/event findings.
-
----
-
-*Built by Xu Ao — for the WhatIf / What If Capital "Digital Asset Market Behavior & Strategy Analyst" application.*
+Data sources: CoinGecko, yfinance, Alternative.me, DeFiLlama, Blockchain.com Charts, Etherscan, FRED, GDELT 2.0. All within free-tier permissions.

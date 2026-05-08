@@ -18,6 +18,7 @@ from src.utils.io import read_json_safe, read_parquet_safe
 
 st.set_page_config(page_title="Executive Overview", layout="wide")
 st.title("Executive Overview")
+st.caption("Cross-asset state of the market — current regime, return / vol, sentiment, and DeFi liquidity at a glance.")
 
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 summary = read_json_safe(PROCESSED_DIR / "behavior_summary.json") or {}

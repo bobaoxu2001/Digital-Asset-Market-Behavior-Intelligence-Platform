@@ -19,6 +19,7 @@ from src.utils.io import read_parquet_safe
 
 st.set_page_config(page_title="Market Regime & Volatility", layout="wide")
 st.title("Market Regime & Volatility")
+st.caption("Rule-based regime classification (7 labels, explicit precedence) — regime ribbon, vol curves, transitions.")
 
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 if feats.empty:

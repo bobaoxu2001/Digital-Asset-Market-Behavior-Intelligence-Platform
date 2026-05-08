@@ -7,6 +7,20 @@
 
 ---
 
+### Key Takeaways
+
+| # | Finding | Strategy implication |
+|---|---|---|
+| 1 | Sentiment lags price by ~1 day across all 9 assets (peak corr at lag = −1, BTC +0.65 ⇨ MKR +0.33) | Use F&G as a *confirming* indicator, not an alpha — feed into the regime engine, not into a directional signal |
+| 2 | Protocol Upgrade and Exchange events drive the largest market reactions (mean impact 1.44 / 0.86); ETF and CPI rank lowest (0.22 / 0.37) | Pre-position around tech catalysts; fade scheduled-macro hype where information is already discounted |
+| 3 | Regime labels carry economically meaningful information about subsequent returns | Regime is a useful conditioning variable for any overlay strategy |
+| 4 | Joint occurrence of liquidity stress + abnormal on-chain activity coincided with the worst sample drawdowns (March 2023 SVB / Aug 2024 yen carry) | Treat the joint signal as a *fade-or-hedge* trigger, not a contrarian-buy |
+| 5 | DeFi tokens (UNI, AAVE, LDO, MKR, CRV) systematically amplify event-driven moves vs. majors | Use DeFi basket for higher-beta event expressions when conviction is high |
+
+📊 Charts referenced below are also viewable in the live dashboard — see `assets/screenshots/` for static previews.
+
+---
+
 ### 1. Executive Summary
 
 - **Sentiment lags price by ~1 day, uniformly across all 9 assets.** Peak correlation between daily change in Fear & Greed and prior-day asset return ranges from **+0.33 (MKR) to +0.65 (BTC)** at lag = −1. Treat market sentiment as a *confirming* indicator, not a leading one.

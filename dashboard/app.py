@@ -44,7 +44,10 @@ def load_summary():
 
 def main():
     st.title("Digital Asset Market Behavior Intelligence Platform")
-    st.caption("A behavior-explanation platform for crypto markets — regimes, events, sentiment, liquidity, on-chain.")
+    st.caption(
+        "A behavior-explanation platform for crypto markets — regimes, events, sentiment, liquidity, on-chain. "
+        "Use the left sidebar to navigate between pages. Filters apply page-by-page."
+    )
 
     feats = load_features()
     summary = load_summary() or {}

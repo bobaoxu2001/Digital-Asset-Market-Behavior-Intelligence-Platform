@@ -19,6 +19,7 @@ from src.utils.io import read_parquet_safe
 
 st.set_page_config(page_title="Strategy Insights", layout="wide")
 st.title("Strategy Insights")
+st.caption("Analyst-style synthesis: top events, event-type × asset heatmap, regime-conditional returns, and a What-Happened / Why-It-Matters / What-To-Watch panel.")
 
 es = read_parquet_safe(PROCESSED_DIR / "event_study.parquet")
 typeasset = read_parquet_safe(PROCESSED_DIR / "event_study_typeasset.parquet")

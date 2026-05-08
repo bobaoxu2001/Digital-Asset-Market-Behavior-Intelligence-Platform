@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: pytest + import smoke (Python 3.11)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Show pinned versions (debug)
+        run: |
+          python --version
+          pip show pandas plotly streamlit | grep -E '^(Name|Version)'
+
+      - name: Run pytest
+        # Tests are pure-Python and do not require .env or live APIs.
+        run: pytest tests/ -v --maxfail=1
+
+      - name: Dashboard import smoke test
+        # Confirm every dashboard page is importable without running Streamlit.
+        # We don't render (no headless browser); we only verify imports + no
+        # syntax errors. Pages call st.set_page_config at import time, which
+        # works fine outside a Streamlit runtime context.
+        run: |
+          python - <<'PY'
+          import importlib, sys, pathlib
+          ROOT = pathlib.Path('.').resolve()
+          sys.path.insert(0, str(ROOT))
+          import streamlit as st  # noqa
+          # Stub Streamlit context so set_page_config + st.* don't error
+          import streamlit.runtime.scriptrunner.script_run_context as src
+          # Import each page module
+          page_dir = ROOT / 'dashboard' / 'pages'
+          for f in sorted(page_dir.glob('*.py')):
+              modname = f"dashboard.pages.{f.stem}"
+              try:
+                  importlib.import_module(modname)
+                  print(f"[ok]   {modname}")
+              except SystemExit:
+                  # Streamlit's st.stop() raises SystemExit; that's expected when
+                  # processed parquet files are absent in CI.
+                  print(f"[stop] {modname} (expected: no processed data in CI)")
+              except Exception as e:
+                  print(f"[FAIL] {modname}: {e!r}")
+                  raise
+          PY
+
+      - name: Confirm .env not in repo
+        run: |
+          if [ -f .env ]; then
+            echo "::error::.env should NEVER be committed!"; exit 1
+          fi
+          if grep -RIn -E "(CG-p[A-Za-z0-9]+|QFKQUA|fdb033e26)" --include='*.py' --include='*.md' --include='*.yml' --include='*.yaml' . ; then
+            echo "::error::Possible API key leak in tracked files"; exit 1
+          fi
+          echo "OK: .env absent and no obvious key fragments in tracked files"

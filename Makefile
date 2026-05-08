@@ -1,6 +1,6 @@
 PY ?= python3.11
 
-.PHONY: ingest features analysis test dashboard all clean
+.PHONY: ingest features analysis test dashboard demo screenshots all clean
 
 ingest:
 	$(PY) -m src.ingest.market_data
@@ -25,6 +25,21 @@ test:
 
 dashboard:
 	$(PY) -m streamlit run dashboard/app.py
+
+# Demo mode: copy bundled small parquet samples into data/processed and launch
+# the dashboard. No API keys required, no ingestion run.
+demo:
+	mkdir -p data/processed
+	cp data/sample/features_sample.parquet           data/processed/features.parquet
+	cp data/sample/event_study_sample.parquet        data/processed/event_study.parquet
+	cp data/sample/lead_lag_sample.parquet           data/processed/lead_lag.parquet
+	cp data/sample/regime_conditional_sample.parquet data/processed/regime_conditional.parquet
+	@echo "Sample data staged. Launching dashboard..."
+	$(PY) -m streamlit run dashboard/app.py
+
+# Regenerate the README's dashboard preview PNGs from data/processed/
+screenshots:
+	$(PY) scripts/generate_screenshots.py
 
 all: ingest features analysis test
 	@echo "Pipeline complete. Run 'make dashboard' to launch Streamlit."
