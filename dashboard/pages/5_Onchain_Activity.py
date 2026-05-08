@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
 from dashboard.components.banner import render_sample_mode_banner
 from dashboard.components.charts import onchain_chart
 from dashboard.components.insights import onchain_insight
-from dashboard.components.kpis import kpi_row
+from dashboard.components.kpis import fmt_int, fmt_signed, kpi_row
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -96,18 +96,44 @@ with st.sidebar:
 
 g = feats[feats["asset"] == asset].sort_values("date")
 last60 = g.tail(60)
-spikes = int((last60["abnormal_onchain_activity_flag"] == 1).sum()) if not last60.empty else 0
-cur_idx = (g["onchain_activity_index"].iloc[-1] if not g.empty else 0) or 0
-cur_tx = (g["tx_count"].iloc[-1] if not g.empty else 0)
-cur_aa = (g["active_addresses"].iloc[-1] if not g.empty else 0)
+
+
+def _last_non_null(series):
+    """Return the most recent non-null value in `series`, or None if all-null/empty."""
+    if series is None or series.empty:
+        return None
+    s = series.dropna()
+    return None if s.empty else s.iloc[-1]
+
+
+# Spikes: a real integer count, safe to display as 0 if column is all-null.
+if (not last60.empty) and ("abnormal_onchain_activity_flag" in last60.columns):
+    spikes_val = int((last60["abnormal_onchain_activity_flag"] == 1).sum())
+    spikes_text = str(spikes_val)
+else:
+    spikes_text = "N/A"
+
+cur_idx = _last_non_null(g["onchain_activity_index"]) if "onchain_activity_index" in g.columns else None
+cur_tx = _last_non_null(g["tx_count"]) if "tx_count" in g.columns else None
+cur_aa = _last_non_null(g["active_addresses"]) if "active_addresses" in g.columns else None
 
 items = [
-    ("Activity index", f"{cur_idx:+.2f}"),
-    ("Abnormal-activity days (60d)", str(spikes)),
-    ("Latest tx count", f"{int(cur_tx):,}" if cur_tx and cur_tx == cur_tx else "—"),
-    ("Latest active addresses", f"{int(cur_aa):,}" if cur_aa and cur_aa == cur_aa else "—"),
+    ("Activity index", fmt_signed(cur_idx)),
+    ("Abnormal-activity days (60d)", spikes_text),
+    ("Latest tx count", fmt_int(cur_tx)),
+    ("Latest active addresses", fmt_int(cur_aa)),
 ]
 kpi_row(items)
+
+# Note when any KPI is N/A so a hiring manager understands the demo limitation
+# rather than treating it as a bug.
+_kpi_values = [v for _, v in items]
+if any(v == "N/A" for v in _kpi_values):
+    st.caption(
+        "Some hosted-demo on-chain metrics are shown as N/A because the bundled "
+        "sample data is intentionally lightweight. Run the full local pipeline for "
+        "complete source coverage: `make ingest && make features && make analysis`."
+    )
 
 st.plotly_chart(onchain_chart(feats, asset), use_container_width=True)
 
