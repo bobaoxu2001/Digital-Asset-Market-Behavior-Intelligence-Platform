@@ -15,7 +15,10 @@ from dashboard.components.charts import onchain_chart
 from dashboard.components.insights import onchain_insight
 from dashboard.components.kpis import kpi_row
 from src.config import PROCESSED_DIR
+from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
+
+ensure_processed_data()
 
 st.set_page_config(page_title="On-chain Activity", layout="wide")
 st.title("On-chain Activity")

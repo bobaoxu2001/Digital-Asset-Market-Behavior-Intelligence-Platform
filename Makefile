@@ -26,15 +26,11 @@ test:
 dashboard:
 	$(PY) -m streamlit run dashboard/app.py
 
-# Demo mode: copy bundled small parquet samples into data/processed and launch
-# the dashboard. No API keys required, no ingestion run.
+# Demo mode: stage bundled sample parquets into data/processed/ via the same
+# helper the cloud-deployed dashboard uses, then launch Streamlit. No API keys
+# required, no ingestion run.
 demo:
-	mkdir -p data/processed
-	cp data/sample/features_sample.parquet           data/processed/features.parquet
-	cp data/sample/event_study_sample.parquet        data/processed/event_study.parquet
-	cp data/sample/lead_lag_sample.parquet           data/processed/lead_lag.parquet
-	cp data/sample/regime_conditional_sample.parquet data/processed/regime_conditional.parquet
-	@echo "Sample data staged. Launching dashboard..."
+	$(PY) -c "from src.utils.demo_data import ensure_processed_data; ensure_processed_data() and print('Demo data staged.')"
 	$(PY) -m streamlit run dashboard/app.py
 
 # Regenerate the README's dashboard preview PNGs from data/processed/

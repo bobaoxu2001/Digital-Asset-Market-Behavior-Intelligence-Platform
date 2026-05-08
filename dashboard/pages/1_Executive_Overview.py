@@ -14,7 +14,11 @@ from dashboard.components.charts import drawdown_chart, indexed_price_chart, reg
 from dashboard.components.insights import overview_insight
 from dashboard.components.kpis import fmt_num, fmt_pct, kpi_row
 from src.config import PROCESSED_DIR
+from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_json_safe, read_parquet_safe
+
+# Cloud bootstrap: stage bundled sample parquets if the full pipeline has never run.
+ensure_processed_data()
 
 st.set_page_config(page_title="Executive Overview", layout="wide")
 st.title("Executive Overview")

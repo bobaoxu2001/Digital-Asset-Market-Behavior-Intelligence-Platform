@@ -15,7 +15,10 @@ from dashboard.components.charts import drawdown_chart, regime_distribution, reg
 from dashboard.components.insights import regime_insight
 from dashboard.components.kpis import fmt_pct, kpi_row
 from src.config import PROCESSED_DIR
+from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
+
+ensure_processed_data()
 
 st.set_page_config(page_title="Market Regime & Volatility", layout="wide")
 st.title("Market Regime & Volatility")

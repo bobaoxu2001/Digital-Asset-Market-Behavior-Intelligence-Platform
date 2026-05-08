@@ -16,7 +16,10 @@ from dashboard.components.charts import lead_lag_chart, sentiment_price_chart
 from dashboard.components.insights import sentiment_insight
 from dashboard.components.kpis import fmt_pct, kpi_row
 from src.config import PROCESSED_DIR
+from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
+
+ensure_processed_data()
 
 st.set_page_config(page_title="Sentiment & Event Reaction", layout="wide")
 st.title("Sentiment & Event Reaction")

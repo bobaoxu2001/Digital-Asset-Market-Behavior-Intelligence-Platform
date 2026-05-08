@@ -27,6 +27,8 @@ A multi-source intelligence platform that fuses price, sentiment, liquidity and 
 
 ## Key Links
 
+- **Live dashboard:** [digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app](https://digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app)
+  *(deployed on Streamlit Community Cloud; runs on bundled sample data — no API calls at runtime)*
 - [Local Demo (run in <2 minutes)](#run-locally) and [Demo Mode (no API keys)](#demo-mode)
 - [One-page case study (PDF)](reports/one_page_case_study.pdf) · [Markdown](reports/one_page_case_study.md)
 - [Full research memo](reports/research_memo.md)
@@ -178,7 +180,9 @@ For deployment to Streamlit Community Cloud and operational notes, see the [Depl
 make demo
 ```
 
-The bundled `data/sample/` directory contains small parquet files sufficient to render every dashboard page without running any ingestion. Use it for a quick walkthrough or a fresh-clone smoke test. No API keys and no network access are required. The same flow can be wired into a Streamlit Community Cloud deployment as a startup hook.
+The bundled `data/sample/` directory contains small parquet files sufficient to render every dashboard page without running any ingestion. Use it for a quick walkthrough or a fresh-clone smoke test. No API keys and no network access are required.
+
+The same logic powers the deployed app at [digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app](https://digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app): on first request, `dashboard/app.py` calls `src/utils/demo_data.ensure_processed_data()`, which copies the bundled sample parquets into `data/processed/` if they are not already present. Fresh data can be regenerated locally with `make ingest && make features && make analysis`.
 
 ---
 

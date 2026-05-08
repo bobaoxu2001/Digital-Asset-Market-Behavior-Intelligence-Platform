@@ -2,6 +2,10 @@
 
 This document describes how to deploy the dashboard to Streamlit Community Cloud and how to operate the platform in local, demo, and production modes.
 
+**Live deployment:** [digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app](https://digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app)
+
+The deployed app runs on the bundled sample parquet files in `data/sample/`. It does not call any API at runtime and does not require API secrets to render. API secrets are only needed if you regenerate processed data outside the Streamlit runtime (e.g. via `make ingest`).
+
 ---
 
 ## Local Modes
@@ -43,22 +47,22 @@ The dashboard is structured so that no code changes are required to deploy it on
    dashboard/app.py
    ```
 4. Set the **Python version** to `3.11`.
-5. Open the app's **Secrets** management panel and add:
+5. (Optional) Open the app's **Secrets** management panel and add:
    ```toml
    COINGECKO_API_KEY = "your-key"
    ETHERSCAN_API_KEY = "your-key"
    FRED_API_KEY      = "your-key"
    ```
-   The application reads these via `python-dotenv` plus `os.getenv`. Streamlit Cloud injects secrets as environment variables, so no code changes are needed.
+   These are **not required** for the deployed dashboard, which runs on bundled sample data. They are only needed if you choose to regenerate processed data outside the Streamlit runtime (e.g. via a scheduled GitHub Action). The application reads them via `python-dotenv` plus `os.getenv`; Streamlit Cloud injects secrets as environment variables, so no code changes are needed.
 6. Click **Deploy**.
 
 ### Provisioning processed data on the deployed instance
 
-Streamlit Cloud does not run `make ingest` automatically. There are three operational options, listed in order of preference:
+Streamlit Cloud does not run `make ingest` automatically. The repository ships with a startup hook that handles this transparently:
 
-- **Bundled sample mode (recommended for demos):** the `data/sample/*.parquet` files are tracked in the repo. Add a startup hook in `dashboard/app.py` (or a small `prestart.py`) that copies the sample files to `data/processed/` if no processed data exists. The repository already includes a `make demo` target that performs this copy locally; the same logic can be run on Cloud start.
-- **Scheduled refresh:** add a GitHub Action that runs the ingestion pipeline on a cron schedule, commits the small daily processed parquets to a separate `data-cache` branch, and have the deployed app pull from that branch.
-- **External storage:** push processed parquet to S3 / GCS and have the dashboard read from object storage at startup. Add the credentials as additional Streamlit secrets.
+- **Bundled sample mode (active by default).** `dashboard/app.py` and every page in `dashboard/pages/` call `src/utils/demo_data.ensure_processed_data()` at module load. The helper is idempotent: if `data/processed/features.parquet` already exists it does nothing; otherwise it copies the small bundled sample files from `data/sample/` to `data/processed/`. The deployed app therefore renders every page without API calls and without requiring secrets. A small note appears in the sidebar when sample data was auto-loaded.
+- **Scheduled refresh (optional upgrade).** Add a GitHub Action that runs the ingestion pipeline on a cron schedule, commits the daily processed parquets to a separate `data-cache` branch, and have the deployed app pull from that branch.
+- **External storage (optional upgrade).** Push processed parquet to S3 / GCS and have the dashboard read from object storage at startup, with credentials as additional Streamlit secrets.
 
 ### Security
 

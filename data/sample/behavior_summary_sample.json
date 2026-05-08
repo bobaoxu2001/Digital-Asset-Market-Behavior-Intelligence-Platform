@@ -1,0 +1,125 @@
+{
+  "as_of": "2026-05-08",
+  "generated_at": "2026-05-08T03:00:56.913300",
+  "sentiment_score": 38.0,
+  "sentiment_label": "Fear",
+  "current_tvl_usd": 56990777433.0,
+  "current_liquidity_stress_score": -0.885612615616241,
+  "per_asset": {
+    "AAVE": {
+      "regime": "Risk-off",
+      "price": 92.05000305175781,
+      "ret_30d": -0.04120569327076984,
+      "vol_30d": 0.9381187289306852,
+      "drawdown": -0.7603251171121805,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.744,
+        "Liquidity Stress": 0.2,
+        "Neutral": 0.056
+      }
+    },
+    "AVAX": {
+      "regime": "Risk-off",
+      "price": 9.460000038146973,
+      "ret_30d": -0.001573200791250562,
+      "vol_30d": 0.4786519984213585,
+      "drawdown": -0.8441257443270548,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.767,
+        "Liquidity Stress": 0.178,
+        "Calm": 0.044,
+        "Neutral": 0.011
+      }
+    },
+    "BTC": {
+      "regime": "Risk-off",
+      "price": 79642.8984375,
+      "ret_30d": 0.10706310861484236,
+      "vol_30d": 0.34306215932146517,
+      "drawdown": -0.3615929260954375,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.811,
+        "Liquidity Stress": 0.122,
+        "Neutral": 0.033,
+        "Calm": 0.033
+      }
+    },
+    "CRV": {
+      "regime": "Risk-off",
+      "price": 0.2395000010728836,
+      "ret_30d": 0.06649214030878725,
+      "vol_30d": 0.5304106668340173,
+      "drawdown": -0.8107335743748614,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.789,
+        "Liquidity Stress": 0.156,
+        "Calm": 0.033,
+        "Neutral": 0.022
+      }
+    },
+    "ETH": {
+      "regime": "Risk-off",
+      "price": 2282.419921875,
+      "ret_30d": 0.018116317667199677,
+      "vol_30d": 0.4696439618593973,
+      "drawdown": -0.527581200335294,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.778,
+        "Liquidity Stress": 0.167,
+        "Calm": 0.044,
+        "Neutral": 0.011
+      }
+    },
+    "LDO": {
+      "regime": "Risk-off",
+      "price": 0.382999986410141,
+      "ret_30d": 0.14090634043065453,
+      "vol_30d": 1.2027564277851737,
+      "drawdown": -0.8987393192604197,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.811,
+        "Liquidity Stress": 0.133,
+        "Neutral": 0.056
+      }
+    },
+    "MKR": {
+      "regime": "Risk-off",
+      "price": 1842.3453369140625,
+      "ret_30d": 0.011794407571557475,
+      "vol_30d": 0.7396613975785978,
+      "drawdown": -0.5345842960820506,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.844,
+        "Liquidity Stress": 0.089,
+        "Neutral": 0.056,
+        "Calm": 0.011
+      }
+    },
+    "SOL": {
+      "regime": "Risk-off",
+      "price": 87.93000030517578,
+      "ret_30d": 0.026643818630514682,
+      "vol_30d": 0.4515820576246849,
+      "drawdown": -0.6642223854520504,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.789,
+        "Liquidity Stress": 0.156,
+        "Calm": 0.044,
+        "Neutral": 0.011
+      }
+    },
+    "UNI": {
+      "regime": "Risk-off",
+      "price": 3.4140000343322754,
+      "ret_30d": 0.03814341423798173,
+      "vol_30d": 0.5248563548806733,
+      "drawdown": -0.8157032781585147,
+      "regime_pct_last_90d": {
+        "Risk-off": 0.789,
+        "Liquidity Stress": 0.156,
+        "Calm": 0.044,
+        "Neutral": 0.011
+      }
+    }
+  }
+}
