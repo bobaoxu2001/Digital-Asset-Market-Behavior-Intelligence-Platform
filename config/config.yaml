@@ -1,0 +1,90 @@
+# Project-wide configuration. All paths are relative to the repo root.
+
+date_range:
+  start: "2023-01-01"
+  end: null   # null = today
+
+# Core assets analyzed end-to-end. Extended assets are layered on if ingestion succeeds.
+assets:
+  core:
+    - id: bitcoin
+      symbol: BTC
+      yf_ticker: "BTC-USD"
+    - id: ethereum
+      symbol: ETH
+      yf_ticker: "ETH-USD"
+    - id: solana
+      symbol: SOL
+      yf_ticker: "SOL-USD"
+  extended:
+    - id: avalanche-2
+      symbol: AVAX
+      yf_ticker: "AVAX-USD"
+    - id: uniswap
+      symbol: UNI
+      yf_ticker: "UNI7083-USD"
+    - id: aave
+      symbol: AAVE
+      yf_ticker: "AAVE-USD"
+    - id: lido-dao
+      symbol: LDO
+      yf_ticker: "LDO-USD"
+    - id: maker
+      symbol: MKR
+      yf_ticker: "MKR-USD"
+    - id: curve-dao-token
+      symbol: CRV
+      yf_ticker: "CRV-USD"
+
+# DeFi chains tracked via DeFiLlama
+defi:
+  chains:
+    - Ethereum
+    - Solana
+    - Arbitrum
+    - Base
+  protocols:
+    - aave
+    - uniswap
+    - lido
+    - makerdao
+    - curve-dex
+  stablecoins:
+    - USDT
+    - USDC
+    - DAI
+
+# Macro series via FRED
+macro:
+  fred_series:
+    VIXCLS: vix
+    DGS10: treasury_10y
+    DTWEXBGS: dxy_proxy
+    SP500: sp500
+  yf_fallback:
+    "^VIX": vix
+    "^TNX": treasury_10y
+    "DX-Y.NYB": dxy_proxy
+    "^GSPC": sp500
+
+paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  sample: "data/sample"
+  events_csv: "data/events_calendar.csv"
+
+http:
+  timeout_sec: 30
+  retries: 3
+  backoff_sec: 2
+
+regime:
+  vol_low_quantile: 0.33
+  liquidity_stress_threshold: 1.5
+  drawdown_riskoff_threshold: -0.15
+  ret30_riskoff_threshold: -0.10
+  ret30_momentum_threshold: 0.10
+  sentiment_riskoff_threshold: 40
+  sentiment_momentum_threshold: 60
+  onchain_spike_threshold: 1.5
+  event_window_days: 2

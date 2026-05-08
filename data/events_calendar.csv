@@ -1,0 +1,47 @@
+date,event_type,event_name,severity,notes
+2023-02-01,FOMC,FOMC rate decision +25bp,2,Fed funds 4.50-4.75
+2023-02-14,CPI,US CPI Jan 2023 (6.4% YoY),2,Hotter than expected core
+2023-03-10,Exchange,Silvergate winddown announcement,3,Crypto-friendly bank failure shock
+2023-03-12,Exchange,Signature Bank closure / USDC depeg,3,USDC briefly to ~0.88
+2023-03-13,Macro Shock,BTFP introduced + SVB resolution,3,Risk-on rebound for BTC/ETH
+2023-03-22,FOMC,FOMC +25bp despite banking stress,2,Powell signals near peak
+2023-03-22,Regulation,SEC Wells notice to Coinbase,2,Filed Mar 22 disclosed
+2023-03-27,Regulation,CFTC sues Binance and CZ,3,Major US enforcement action
+2023-04-12,Protocol Upgrade,Ethereum Shapella / Shanghai upgrade,3,Enabled staked-ETH withdrawals
+2023-05-03,FOMC,FOMC +25bp - final hike of cycle,2,Funds rate 5.00-5.25
+2023-06-05,Regulation,SEC sues Binance (US),3,Filed in DC
+2023-06-06,Regulation,SEC sues Coinbase,3,Filed in SDNY
+2023-06-15,ETF,BlackRock files for spot BTC ETF,3,Sparked second-half BTC rally
+2023-07-26,FOMC,FOMC +25bp,1,Funds rate 5.25-5.50
+2023-08-02,Exploit,Curve Vyper exploit (~$70M),2,Reentrancy in Vyper compiler
+2023-08-29,Regulation,Grayscale wins ETF appeal vs SEC,3,DC Circuit ruling - bullish ETF catalyst
+2023-09-20,FOMC,FOMC pause - hawkish dots,2,SEP shifted higher-for-longer
+2023-10-23,ETF,iShares BTC ETF DTCC listing leak,2,BTC +10% on listing rumor
+2023-11-02,FOMC,FOMC pause; Powell dovish presser,1,
+2023-11-21,Exchange,Binance / CZ DOJ settlement ($4.3B),3,CZ steps down
+2024-01-10,ETF,US spot BTC ETFs approved,3,11 ETFs approved by SEC
+2024-01-11,ETF,US spot BTC ETFs first trading day,3,~$4.6B day-1 volume
+2024-01-31,FOMC,FOMC pause; Powell pushes back on March cut,2,Risk assets sold off
+2024-02-13,CPI,US CPI Jan 2024 (3.1% YoY) hotter,2,BTC dipped
+2024-03-13,Protocol Upgrade,Ethereum Dencun upgrade (EIP-4844),3,Blob space cut L2 fees ~10x
+2024-03-14,Macro Shock,BTC all-time high above $73k,2,Pre-halving euphoria
+2024-04-20,Protocol Upgrade,Bitcoin halving (block 840000),3,Block subsidy 6.25 -> 3.125 BTC
+2024-05-23,ETF,Spot ETH ETF 19b-4 approvals,3,SEC approval of exchange filings
+2024-07-23,ETF,Spot ETH ETFs begin trading,3,9 ETH ETFs start trading
+2024-08-05,Macro Shock,Global risk-off / yen carry unwind,3,BTC -15% intraday
+2024-09-18,FOMC,FOMC -50bp surprise cut,3,Start of cutting cycle
+2024-11-05,Regulation,US presidential election (pro-crypto outcome),3,BTC rallies sharply post-election
+2024-11-07,FOMC,FOMC -25bp,1,
+2024-12-05,Macro Shock,BTC crosses $100k,3,Round-number sentiment milestone
+2024-12-18,FOMC,FOMC -25bp; hawkish dots 2025,2,Risk-off across crypto
+2025-01-20,Regulation,Trump executive order on digital assets,2,Working group; pro-crypto signal
+2025-01-23,Regulation,SEC SAB-121 rescinded (SAB-122),2,Banks can custody crypto more easily
+2025-02-21,Exploit,Bybit ETH cold-wallet exploit ($1.5B),3,Largest exchange-side hack ever
+2025-03-06,Regulation,US Strategic Bitcoin Reserve EO,3,Federal BTC stockpile established
+2025-03-19,FOMC,FOMC pause; QT taper announced,1,
+2025-04-02,Macro Shock,Liberation Day tariffs - global risk-off,3,Cross-asset selloff incl crypto
+2025-04-09,Macro Shock,Tariff pause / risk-on snapback,2,BTC reverses sharply higher
+2025-05-07,Protocol Upgrade,Ethereum Pectra upgrade,2,EIP-7702 account abstraction
+2024-06-12,CPI,US CPI May 2024 cooler,1,Risk-on
+2024-10-03,Macro Shock,Iran missile attack on Israel,2,Risk-off then recovery
+2023-12-13,FOMC,FOMC pause; dovish dots,2,Triggered Q1 risk-on rally
