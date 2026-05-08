@@ -21,6 +21,7 @@ from dashboard.components.charts import (  # noqa: E402
     indexed_price_chart,
     regime_timeline,
 )
+from dashboard.components.banner import render_sample_mode_banner  # noqa: E402
 from src.utils.io import read_json_safe, read_parquet_safe  # noqa: E402
 from src.config import PROCESSED_DIR  # noqa: E402
 from src.utils.demo_data import ensure_processed_data  # noqa: E402
@@ -28,7 +29,7 @@ from src.utils.demo_data import ensure_processed_data  # noqa: E402
 # Cloud bootstrap: if processed data is missing (e.g. on Streamlit Cloud where
 # the ingestion pipeline never ran), stage the bundled sample parquets so every
 # page renders. Idempotent and safe locally.
-_DEMO_MODE = ensure_processed_data()
+ensure_processed_data()
 
 st.set_page_config(
     page_title="Digital Asset Market Behavior Intelligence",
@@ -48,6 +49,7 @@ def load_summary():
 
 
 def main():
+    render_sample_mode_banner()
     st.title("Digital Asset Market Behavior Intelligence Platform")
     st.caption(
         "A behavior-explanation platform for crypto markets — regimes, events, sentiment, liquidity, on-chain. "
@@ -65,12 +67,6 @@ def main():
     all_assets = sorted(feats["asset"].unique())
     default_assets = [a for a in ["BTC", "ETH", "SOL"] if a in all_assets] or all_assets[:3]
     with st.sidebar:
-        if _DEMO_MODE:
-            st.info(
-                "Demo data loaded from bundled sample parquet files. "
-                "Run the full pipeline locally for fresh data: "
-                "`make ingest && make features && make analysis`."
-            )
         st.header("Filters")
         assets = st.multiselect("Assets", all_assets, default=default_assets, key="g_assets")
         date_min = feats["date"].min().date()

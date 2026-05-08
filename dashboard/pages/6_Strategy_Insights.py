@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 
 from dashboard.components.charts import event_impact_bar, event_type_heatmap
 from dashboard.components.insights import strategy_insight
+from dashboard.components.banner import render_sample_mode_banner
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -21,6 +22,7 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Strategy Insights", layout="wide")
+render_sample_mode_banner()
 st.title("Strategy Insights")
 st.caption("Analyst-style synthesis: top events, event-type × asset heatmap, regime-conditional returns, and a What-Happened / Why-It-Matters / What-To-Watch panel.")
 

@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from dashboard.components.charts import liquidity_stress_chart, tvl_chart
 from dashboard.components.insights import liquidity_insight
 from dashboard.components.kpis import fmt_num, fmt_pct, kpi_row
+from dashboard.components.banner import render_sample_mode_banner
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -21,6 +22,7 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Liquidity & DeFi Participation", layout="wide")
+render_sample_mode_banner()
 st.title("Liquidity & DeFi Participation")
 st.caption("Chain-level TVL stack, top-protocol breakdown, stablecoin supply, and the composite liquidity-stress score.")
 

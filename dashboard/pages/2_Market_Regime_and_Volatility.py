@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from dashboard.components.charts import drawdown_chart, regime_distribution, regime_timeline, vol_chart
 from dashboard.components.insights import regime_insight
 from dashboard.components.kpis import fmt_pct, kpi_row
+from dashboard.components.banner import render_sample_mode_banner
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -21,6 +22,7 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Market Regime & Volatility", layout="wide")
+render_sample_mode_banner()
 st.title("Market Regime & Volatility")
 st.caption("Rule-based regime classification (7 labels, explicit precedence) — regime ribbon, vol curves, transitions.")
 

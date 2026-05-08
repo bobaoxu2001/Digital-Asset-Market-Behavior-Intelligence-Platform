@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from dashboard.components.banner import render_sample_mode_banner
 from dashboard.components.charts import drawdown_chart, indexed_price_chart, regime_timeline
 from dashboard.components.insights import overview_insight
 from dashboard.components.kpis import fmt_num, fmt_pct, kpi_row
@@ -21,6 +22,7 @@ from src.utils.io import read_json_safe, read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Executive Overview", layout="wide")
+render_sample_mode_banner()
 st.title("Executive Overview")
 st.caption("Cross-asset state of the market — current regime, return / vol, sentiment, and DeFi liquidity at a glance.")
 

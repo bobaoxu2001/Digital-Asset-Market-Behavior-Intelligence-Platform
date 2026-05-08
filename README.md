@@ -27,8 +27,8 @@ A multi-source intelligence platform that fuses price, sentiment, liquidity and 
 
 ## Key Links
 
-- **Live dashboard:** [digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app](https://digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app)
-  *(deployed on Streamlit Community Cloud; runs on bundled sample data — no API calls at runtime)*
+- **Live dashboard:** [crypto-market-behavior.streamlit.app](https://crypto-market-behavior.streamlit.app/)
+  *(deployed on Streamlit Community Cloud; runs on bundled sample data with no API calls at runtime. Sample mode is signaled by a sidebar banner on every page.)*
 - [Local Demo (run in <2 minutes)](#run-locally) and [Demo Mode (no API keys)](#demo-mode)
 - [One-page case study (PDF)](reports/one_page_case_study.pdf) · [Markdown](reports/one_page_case_study.md)
 - [Full research memo](reports/research_memo.md)
@@ -74,7 +74,7 @@ Chain-level TVL stack (Ethereum, Solana, Arbitrum, Base), top-protocol bars, sta
 ![Liquidity and DeFi Participation](assets/screenshots/liquidity_defi_participation.png)
 
 ### Page 5 — On-chain Activity
-BTC native on-chain (Blockchain.com Charts) and ETH activity proxy (DeFiLlama-derived flux). The page includes a *Methodology note* expander documenting the Etherscan free-tier limitation.
+BTC native on-chain (Blockchain.com Charts) and ETH activity proxy (DeFiLlama-derived flux). The page includes a *Methodology note* expander documenting the Etherscan free-tier limitation. The hosted demo's bundled sample slice includes BTC and ETH on-chain coverage; if a hosted slice ever lacks meaningful on-chain rows, the page renders a clear professional fallback rather than blank charts.
 
 ![On-chain Activity](assets/screenshots/onchain_activity.png)
 
@@ -182,7 +182,7 @@ make demo
 
 The bundled `data/sample/` directory contains small parquet files sufficient to render every dashboard page without running any ingestion. Use it for a quick walkthrough or a fresh-clone smoke test. No API keys and no network access are required.
 
-The same logic powers the deployed app at [digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app](https://digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app): on first request, `dashboard/app.py` calls `src/utils/demo_data.ensure_processed_data()`, which copies the bundled sample parquets into `data/processed/` if they are not already present. Fresh data can be regenerated locally with `make ingest && make features && make analysis`.
+The same logic powers the deployed app at [crypto-market-behavior.streamlit.app](https://crypto-market-behavior.streamlit.app/). On first request, `dashboard/app.py` calls `src/utils/demo_data.ensure_processed_data()`, which copies the bundled sample parquets into `data/processed/` and writes a `.sample_mode` marker file. Every page checks the marker and renders a sidebar banner ("Runtime mode: bundled sample data. No API calls are made at dashboard runtime.") so a viewer always knows what mode the app is in. Fresh data can be regenerated locally with `make ingest && make features && make analysis`.
 
 ---
 

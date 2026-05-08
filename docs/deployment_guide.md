@@ -2,9 +2,17 @@
 
 This document describes how to deploy the dashboard to Streamlit Community Cloud and how to operate the platform in local, demo, and production modes.
 
-**Live deployment:** [digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app](https://digital-asset-market-behavior-intelligence-platform-cfnsz2dtna.streamlit.app)
+**Live deployment:** [crypto-market-behavior.streamlit.app](https://crypto-market-behavior.streamlit.app/)
 
 The deployed app runs on the bundled sample parquet files in `data/sample/`. It does not call any API at runtime and does not require API secrets to render. API secrets are only needed if you regenerate processed data outside the Streamlit runtime (e.g. via `make ingest`).
+
+### Runtime-mode banner
+
+`src/utils/demo_data.ensure_processed_data()` writes a `.sample_mode` marker file inside `data/processed/` whenever it stages bundled samples. Every dashboard page calls `dashboard/components/banner.render_sample_mode_banner()` at the top of its script; the banner inspects the marker and, when present, renders a persistent sidebar info note: *"Runtime mode: bundled sample data. No API calls are made at dashboard runtime."* The marker survives Streamlit Cloud session restarts because the filesystem persists across requests.
+
+### On-chain page fallback
+
+The On-chain Activity page defensively checks whether the loaded features parquet contains a non-trivial number of non-null on-chain rows for BTC or ETH. If both are absent (an unusual case, e.g. a hosted slice without on-chain coverage), the page renders a professional info panel instead of blank KPIs and charts, with reproduction instructions for the local pipeline.
 
 ---
 

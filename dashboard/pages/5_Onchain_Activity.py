@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -11,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from dashboard.components.banner import render_sample_mode_banner
 from dashboard.components.charts import onchain_chart
 from dashboard.components.insights import onchain_insight
 from dashboard.components.kpis import kpi_row
@@ -21,6 +23,8 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="On-chain Activity", layout="wide")
+render_sample_mode_banner()
+
 st.title("On-chain Activity")
 st.caption("BTC native activity (Blockchain.com Charts) + ETH proxy activity (DeFiLlama-derived flux). Abnormal-day flags overlaid on price.")
 
@@ -40,8 +44,55 @@ if feats.empty:
     st.error("Run the pipeline first.")
     st.stop()
 
+
+# ---------------------------------------------------------------------------
+# Detect whether on-chain coverage is meaningful for the focus asset.
+# We require a non-trivial number of non-null rows in the activity index for
+# the asset to render KPIs and charts. Otherwise we show a professional
+# fallback panel and stop the page.
+# ---------------------------------------------------------------------------
+def _has_meaningful_onchain(df: pd.DataFrame, asset: str, min_rows: int = 30) -> bool:
+    if df.empty:
+        return False
+    sub = df[df["asset"] == asset]
+    if sub.empty:
+        return False
+    cols = ["onchain_activity_index", "tx_count"]
+    available = [c for c in cols if c in sub.columns]
+    if not available:
+        return False
+    non_null = sub[available].notna().any(axis=1).sum()
+    return int(non_null) >= min_rows
+
+
+btc_ok = _has_meaningful_onchain(feats, "BTC")
+eth_ok = _has_meaningful_onchain(feats, "ETH")
+
+if not btc_ok and not eth_ok:
+    st.info(
+        "On-chain activity is limited in the hosted demo because native ETH transaction "
+        "statistics require paid or Pro-tier endpoints, and the bundled sample slice does "
+        "not include enough native BTC on-chain coverage to render charts honestly. BTC on-chain "
+        "data and ETH proxy data are available in the full local pipeline when source data is "
+        "present. This page is intentionally kept blank in sample mode to avoid presenting "
+        "misleading zero values."
+    )
+    st.markdown(
+        "**How to reproduce the full on-chain view locally**\n\n"
+        "```bash\n"
+        "make ingest && make features && make analysis\n"
+        "```\n\n"
+        "The local pipeline pulls BTC on-chain data from the public Blockchain.com Charts API "
+        "(no key required) and an ETH activity proxy from DeFiLlama. With a Pro Etherscan key, "
+        "the proxy is replaced by native ETH transaction counters in "
+        "`src/ingest/onchain_etherscan.py` without other code changes."
+    )
+    st.stop()
+
+
 with st.sidebar:
-    asset = st.selectbox("Asset (BTC and ETH have on-chain data)", ["BTC", "ETH"])
+    available_assets = [a for a, ok in [("BTC", btc_ok), ("ETH", eth_ok)] if ok]
+    asset = st.selectbox("Asset", available_assets)
 
 g = feats[feats["asset"] == asset].sort_values("date")
 last60 = g.tail(60)
@@ -61,7 +112,7 @@ kpi_row(items)
 st.plotly_chart(onchain_chart(feats, asset), use_container_width=True)
 
 # Tx count + price overlay
-if not g.empty:
+if not g.empty and g["tx_count"].notna().any():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=g["date"], y=g["tx_count"], mode="lines", name="Tx count", yaxis="y1", line=dict(color="#6DC8EC")))
     fig.add_trace(go.Scatter(x=g["date"], y=g["price"], mode="lines", name="Price", yaxis="y2", line=dict(color="white")))
