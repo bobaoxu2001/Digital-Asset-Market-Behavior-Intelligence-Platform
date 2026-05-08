@@ -53,14 +53,31 @@ _FILE_MAP = {
 
 
 def _on_streamlit_cloud() -> bool:
-    """Best-effort check for Streamlit Community Cloud runtime. Never raises."""
+    """Best-effort check for Streamlit Community Cloud runtime. Never raises.
+
+    Streamlit Cloud does not document a single canonical env var, so we check
+    several plausible ones plus the path signature that Cloud uses for the
+    working tree (`/mount/src/<repo>/...`). Any positive match is sufficient.
+    """
     try:
-        if os.getenv("STREAMLIT_RUNTIME"):
-            return True
-        if os.getenv("STREAMLIT_SERVER_HEADLESS"):
-            return True
-        host = os.getenv("HOSTNAME", "")
+        env_markers = [
+            "STREAMLIT_SERVER_ENABLED",
+            "STREAMLIT_SHARING_MODE",
+            "STREAMLIT_CLOUD",
+            "STREAMLIT_RUNTIME",
+            "STREAMLIT_SERVER_HEADLESS",
+        ]
+        for name in env_markers:
+            if os.environ.get(name):
+                return True
+        host = os.environ.get("HOSTNAME", "")
         if host.startswith("streamlit"):
+            return True
+        # Path signature: Streamlit Cloud mounts repos under /mount/src/.
+        here = str(Path(__file__).resolve())
+        if "/mount/src/" in here:
+            return True
+        if "/mount/src/" in os.getcwd():
             return True
     except Exception:
         pass
@@ -131,8 +148,19 @@ def ensure_processed_data(sample_dir: Optional[Path] = None,
         if marker.exists():
             return True
 
-        # Case 2: real pipeline output present, no marker -> not sample mode
+        # Case 2: real pipeline output present, no marker
         if sentinel.exists():
+            # Edge case: features.parquet was somehow seeded (e.g. a manual
+            # copy or a stale Cloud snapshot) but the marker was never
+            # written. If we are detectably on a hosted runtime, write the
+            # marker so the banner reliably surfaces sample mode.
+            if _on_streamlit_cloud():
+                try:
+                    processed_dir.mkdir(parents=True, exist_ok=True)
+                    marker.write_text("sample mode active\n")
+                except OSError as e:
+                    log.warning("Could not write %s marker: %s", marker, e)
+                return True
             return False
 
         # Case 3: nothing present -> stage samples
