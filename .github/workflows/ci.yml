@@ -47,9 +47,7 @@ jobs:
           import importlib, sys, pathlib
           ROOT = pathlib.Path('.').resolve()
           sys.path.insert(0, str(ROOT))
-          import streamlit as st  # noqa
-          # Stub Streamlit context so set_page_config + st.* don't error
-          import streamlit.runtime.scriptrunner.script_run_context as src
+          import streamlit as st  # noqa: F401
           # Import each page module
           page_dir = ROOT / 'dashboard' / 'pages'
           for f in sorted(page_dir.glob('*.py')):
