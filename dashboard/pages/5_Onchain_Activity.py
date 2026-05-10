@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
 from dashboard.components.banner import render_sample_mode_banner
 from dashboard.components.charts import onchain_chart
 from dashboard.components.insights import onchain_insight
-from dashboard.components.kpis import fmt_int, fmt_signed, kpi_row
+from dashboard.components.kpis import fmt_int, fmt_pct, fmt_signed, kpi_row
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -117,23 +117,32 @@ cur_idx = _last_non_null(g["onchain_activity_index"]) if "onchain_activity_index
 cur_tx = _last_non_null(g["tx_count"]) if "tx_count" in g.columns else None
 cur_aa = _last_non_null(g["active_addresses"]) if "active_addresses" in g.columns else None
 
-items = [
+# 7d change in activity index — derivable from the activity index alone, so it
+# is available for every asset that passed `_has_meaningful_onchain`. Keeps the
+# KPI row visually balanced when a column like ``active_addresses`` is missing
+# from the bundled sample (e.g. ETH proxy slice).
+def _pct_change_7d(series: pd.Series):
+    s = series.dropna() if series is not None else None
+    if s is None or len(s) < 8:
+        return None
+    last, prior = s.iloc[-1], s.iloc[-8]
+    if prior == 0 or pd.isna(prior):
+        return None
+    return float((last - prior) / abs(prior))
+
+idx_7d = _pct_change_7d(g["onchain_activity_index"]) if "onchain_activity_index" in g.columns else None
+
+candidate_items = [
     ("Activity index", fmt_signed(cur_idx)),
+    ("Activity 7d change", fmt_pct(idx_7d)),
     ("Abnormal-activity days (60d)", spikes_text),
     ("Latest tx count", fmt_int(cur_tx)),
     ("Latest active addresses", fmt_int(cur_aa)),
 ]
-kpi_row(items)
-
-# Note when any KPI is N/A so a hiring manager understands the demo limitation
-# rather than treating it as a bug.
-_kpi_values = [v for _, v in items]
-if any(v == "N/A" for v in _kpi_values):
-    st.caption(
-        "Some hosted-demo on-chain metrics are shown as N/A because the bundled "
-        "sample data is intentionally lightweight. Run the full local pipeline for "
-        "complete source coverage: `make ingest && make features && make analysis`."
-    )
+# Drop any KPI that resolved to N/A so the row never shows placeholder cells.
+items = [(label, value) for label, value in candidate_items if value != "N/A"]
+if items:
+    kpi_row(items)
 
 st.plotly_chart(onchain_chart(feats, asset), use_container_width=True)
 
