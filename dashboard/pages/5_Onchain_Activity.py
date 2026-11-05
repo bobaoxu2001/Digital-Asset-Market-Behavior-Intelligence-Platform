@@ -145,14 +145,6 @@ def _pct_change_7d(series: pd.Series):
 
 idx_7d = _pct_change_7d(g["onchain_activity_index"]) if "onchain_activity_index" in g.columns else None
 
-candidate_def _pct_change_7d(series: pd.Series):
-    values = series.dropna()
-    if len(values) < 8 or values.iloc[-8] == 0:
-        return None
-    return float((values.iloc[-1] - values.iloc[-8]) / abs(values.iloc[-8]))
-
-
-idx_7d = _pct_change_7d(g["onchain_activity_index"]) if "onchain_activity_index" in g else None
 items = [
     ("Activity index", fmt_signed(cur_idx)),
     ("Activity 7d change", fmt_pct(idx_7d)),
