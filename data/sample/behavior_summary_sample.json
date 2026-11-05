@@ -1,17 +1,21 @@
 {
   "as_of": "2026-05-08",
-  "generated_at": "2026-05-08T07:03:41.670725",
+  "generated_at": "2026-05-10T08:23:15.871410",
   "sentiment_score": 38.0,
   "sentiment_label": "Fear",
   "current_tvl_usd": 56990777433.0,
   "current_liquidity_stress_score": -0.885612615616241,
+  "market_breadth_positive_7d": 0.7777777777777778,
+  "cross_asset_return_dispersion_30d": 0.06262939899272219,
   "per_asset": {
     "AAVE": {
       "regime": "Risk-off",
+      "volatility_regime": "Normal volatility",
       "price": 92.51053619384766,
       "ret_30d": -0.036408772683514834,
       "vol_30d": 0.9367786113747729,
       "drawdown": -0.7591260055072164,
+      "rebound_from_30d_low": 0.028897186827852472,
       "regime_pct_last_90d": {
         "Risk-off": 0.744,
         "Liquidity Stress": 0.2,
@@ -20,10 +24,12 @@
     },
     "AVAX": {
       "regime": "Risk-off",
+      "volatility_regime": "Low volatility",
       "price": 9.472562789916992,
       "ret_30d": -0.0002473035408895319,
       "vol_30d": 0.47811965259649025,
       "drawdown": -0.8439187454292261,
+      "rebound_from_30d_low": 0.05131475972508559,
       "regime_pct_last_90d": {
         "Risk-off": 0.767,
         "Liquidity Stress": 0.178,
@@ -33,10 +39,12 @@
     },
     "BTC": {
       "regime": "Risk-off",
+      "volatility_regime": "Normal volatility",
       "price": 79465.3359375,
       "ret_30d": 0.10459493006936049,
       "vol_30d": 0.34523587873550016,
       "drawdown": -0.36301624390887866,
+      "rebound_from_30d_low": 0.12313088724968635,
       "regime_pct_last_90d": {
         "Risk-off": 0.811,
         "Liquidity Stress": 0.122,
@@ -46,10 +54,12 @@
     },
     "CRV": {
       "regime": "Risk-off",
+      "volatility_regime": "Low volatility",
       "price": 0.24210503697395325,
       "ret_30d": 0.07809235033495554,
       "vol_30d": 0.5206086933331998,
       "drawdown": -0.8086749278971498,
+      "rebound_from_30d_low": 0.15778237924601957,
       "regime_pct_last_90d": {
         "Risk-off": 0.789,
         "Liquidity Stress": 0.156,
@@ -59,10 +69,12 @@
     },
     "ETH": {
       "regime": "Risk-off",
+      "volatility_regime": "Low volatility",
       "price": 2273.4228515625,
       "ret_30d": 0.014103005301423055,
       "vol_30d": 0.4730219408342129,
       "drawdown": -0.529443427840756,
+      "rebound_from_30d_low": 0.03849852131221909,
       "regime_pct_last_90d": {
         "Risk-off": 0.778,
         "Liquidity Stress": 0.167,
@@ -72,10 +84,12 @@
     },
     "LDO": {
       "regime": "Risk-off",
+      "volatility_regime": "High volatility",
       "price": 0.38815468549728394,
       "ret_30d": 0.15626150774190273,
       "vol_30d": 1.2003768342364214,
       "drawdown": -0.8973764775969926,
+      "rebound_from_30d_low": 0.23781707259238472,
       "regime_pct_last_90d": {
         "Risk-off": 0.811,
         "Liquidity Stress": 0.133,
@@ -84,10 +98,12 @@
     },
     "MKR": {
       "regime": "Risk-off",
+      "volatility_regime": "Low volatility",
       "price": 1779.5638427734375,
       "ret_30d": -0.02268445119488327,
       "vol_30d": 0.7280962646814447,
       "drawdown": -0.5504442397652596,
+      "rebound_from_30d_low": 0.02194167127871105,
       "regime_pct_last_90d": {
         "Risk-off": 0.844,
         "Liquidity Stress": 0.089,
@@ -97,10 +113,12 @@
     },
     "SOL": {
       "regime": "Risk-off",
+      "volatility_regime": "Low volatility",
       "price": 87.96717071533203,
       "ret_30d": 0.027077808982958862,
       "vol_30d": 0.45141245220413206,
       "drawdown": -0.664080443093234,
+      "rebound_from_30d_low": 0.07888538452282057,
       "regime_pct_last_90d": {
         "Risk-off": 0.789,
         "Liquidity Stress": 0.156,
@@ -110,10 +128,12 @@
     },
     "UNI": {
       "regime": "Risk-off",
+      "volatility_regime": "Low volatility",
       "price": 3.433581590652466,
       "ret_30d": 0.04409785581088932,
       "vol_30d": 0.5228032191219811,
       "drawdown": -0.8146462141274444,
+      "rebound_from_30d_low": 0.13740739082192666,
       "regime_pct_last_90d": {
         "Risk-off": 0.789,
         "Liquidity Stress": 0.156,

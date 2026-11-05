@@ -17,11 +17,16 @@ Every one of the 9 tracked assets has its peak |corr| between F&G change and ass
 | CPI | 0.37 | — |
 | ETF | 0.22 | — *(priced in over weeks)* |
 
-## 3. DeFi tokens dominate event leaderboards
-Of the top-10 event impacts, the majority are UNI / LDO / MKR / AAVE rather than BTC. Strategy expression for high-conviction event trades should consider DeFi-token beta.
+## 3. DeFi beta names dominate event leaderboards
+Of the top-10 event impacts, the majority are UNI / LDO / MKR / AAVE rather than BTC. Strategy interpretation should separate the event view from the expression: majors may be cleaner macro instruments, while DeFi beta names may show larger catalyst sensitivity and require tighter sizing discipline.
 
 ## 4. Regime separation is real
 For BTC: Calm days (n=237) annualize **negative**; Momentum and Event-driven days deliver the bulk of upside; Risk-off and Liquidity Stress are flat-to-negative. The labels are economically informative, not noise.
 
 ## 5. Liquidity stress co-occurs with the worst drawdowns
 The composite liquidity stress score breached the 1.5σ threshold during (a) the March 2023 banking crisis week and (b) the August 2024 yen-carry-unwind day — both within ±2 days of the surrounding period's worst BTC drawdown.
+
+## 6. Breadth adds a useful participation check
+The dashboard tracks the share of assets with positive 7-day returns plus 30-day return dispersion. That makes the demo more strategy-relevant: a BTC rally with poor breadth is different from broad risk-on participation across majors and alt/DeFi beta names.
+
+**Caveat:** These are monitoring signals and descriptive event-window statistics, not a causal model or trading advice.

@@ -36,10 +36,12 @@ def main() -> dict:
         latest = g.iloc[-1]
         per_asset[asset] = {
             "regime": str(latest.get("regime")),
+            "volatility_regime": str(latest.get("volatility_regime", "")),
             "price": float(latest.get("price", float("nan"))),
             "ret_30d": float(latest.get("rolling_30d_return") or 0),
             "vol_30d": float(latest.get("rolling_30d_volatility") or 0),
             "drawdown": float(latest.get("drawdown") or 0),
+            "rebound_from_30d_low": float(latest.get("rebound_from_30d_low") or 0),
             "regime_pct_last_90d": (
                 g.tail(90)["regime"].value_counts(normalize=True).round(3).to_dict()
             ),
@@ -49,6 +51,8 @@ def main() -> dict:
     sentiment_label = str(feats.sort_values("date").iloc[-1].get("sentiment_label"))
     tvl = float(feats.sort_values("date").iloc[-1].get("tvl_usd") or float("nan"))
     liq_score = float(feats.sort_values("date").iloc[-1].get("liquidity_stress_score") or float("nan"))
+    market_breadth = float(feats.sort_values("date").iloc[-1].get("market_breadth_positive_7d") or float("nan"))
+    return_dispersion = float(feats.sort_values("date").iloc[-1].get("cross_asset_return_dispersion_30d") or float("nan"))
 
     summary = {
         "as_of": asof,
@@ -57,6 +61,8 @@ def main() -> dict:
         "sentiment_label": sentiment_label,
         "current_tvl_usd": tvl,
         "current_liquidity_stress_score": liq_score,
+        "market_breadth_positive_7d": market_breadth,
+        "cross_asset_return_dispersion_30d": return_dispersion,
         "per_asset": per_asset,
     }
 

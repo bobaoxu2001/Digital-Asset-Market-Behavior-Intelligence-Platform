@@ -15,7 +15,7 @@
 | 2 | Protocol Upgrade and Exchange events are associated with the largest mean event impact (1.44 and 0.86); ETF and CPI events show lower average impact (0.22 and 0.37) | Distinguish anticipated catalysts from genuine surprise events when sizing event-driven exposure |
 | 3 | Regime labels carry economically meaningful information about subsequent returns | Regime is a useful conditioning variable for any overlay strategy |
 | 4 | Joint occurrence of liquidity stress and abnormal on-chain activity coincided with the largest sample drawdowns (March 2023 SVB, August 2024 yen-carry unwind) | Monitor as a potential risk-management signal rather than as a contrarian buy trigger |
-| 5 | DeFi tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors in the sample | Consider DeFi basket for higher-beta event expressions when conviction is high |
+| 5 | DeFi beta tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors in the sample | Consider alt/DeFi beta basket for higher-beta event expressions when conviction is high |
 
 > **Interpretation note.** Event-study results should be read as short-window market reactions associated with event categories, not as strict causal estimates. Other contemporaneous information may have moved markets in the same window.
 
@@ -58,9 +58,9 @@ How do digital-asset markets *behave* — not just price — and which signals (
 
 ### 4. Methodology
 
-- **Feature engineering** produces ~50 daily features per (date, asset): price returns (1d/7d/30d), realized volatility (7d/30d annualized), volume z-score & spike flag, drawdown, rolling sentiment z-score & 3d/7d shifts, TVL changes (1d/7d/30d), composite **liquidity stress score** (z-scored negative TVL trend + negative stablecoin trend, threshold 1.5σ), per-asset on-chain activity z-scores and a composite **on-chain activity index**, macro layer (VIX, 10Y, DXY proxy, S&P 500), event flag/type/severity and days-since/to.
+- **Feature engineering** produces ~60 daily features per (date, asset): price returns (1d/7d/30d), realized volatility (7d/30d annualized), trailing volatility percentile, volume z-score & spike flag, drawdown and rebound from 30d low, cross-asset breadth and return dispersion, rolling sentiment-return correlation, TVL changes (1d/7d/30d), composite **liquidity stress score** (z-scored negative TVL trend + negative stablecoin trend, threshold 1.5σ), per-asset on-chain activity z-scores and a composite **on-chain activity index**, macro layer (VIX, 10Y, DXY proxy, S&P 500), event flag/type/severity and days-since/to.
 - **Regime classifier:** transparent rule-based with explicit precedence — Event-driven → Liquidity Stress → Risk-off → On-chain Activity Spike → Momentum → Calm → Neutral. Rules are auditable in `src/features/regime_classifier.py`. Vol-low threshold is per-asset 33rd percentile of trailing 30d vol over the full sample (trailing-only).
-- **Event study:** for each (event, asset), compute t-1→t+1, t→t+3, t→t+7 cumulative log returns; pre/post 5d realized vol and average volume; sentiment shift; TVL reaction; on-chain activity shift. Composite `impact_score = |ret_t_t7| + max(vol_ratio − 1, 0)` ranks events.
+- **Event study:** for each (event, asset), compute `[-1,+1]`, `[-3,+3]`, `[-7,+7]`, `t→t+3`, `t→t+7`, and post-event drift `+3→+7` cumulative log returns; pre/post 5d realized vol and average volume; sentiment shift; TVL reaction; on-chain activity shift. Composite `impact_score = |ret_t_t7| + max(vol_ratio − 1, 0)` ranks events.
 - **Lead-lag:** sample cross-correlation between daily change in F&G and asset return at lags k ∈ [−7, +7]; positive k means sentiment leads.
 - **Look-ahead control:** all rolling features are trailing-only (z-scores at t use the window ending t−1). Regime labels use only features known at end of day t.
 
@@ -109,6 +109,14 @@ Lead correlations (k > 0) are near zero across the board, often negative. **Impl
 
 ETF events show lower average short-window impact, likely because major approval expectations were partially priced in over weeks of approval anticipation rather than concentrated into single-day reactions. The largest individual event observations are clustered around Ethereum Pectra (May 2025) and the November 2024 US election outcome; both produced multi-week trends that show up as elevated post-versus-pre realized-volatility ratios.
 
+### 6A. Breadth and Rotation Findings
+
+The dashboard adds two participation diagnostics that are useful in a live research conversation:
+
+- **7-day market breadth:** share of tracked assets with positive trailing 7-day return. This separates broad risk-on/risk-off behavior from single-asset moves.
+- **30-day return dispersion:** cross-sectional dispersion of trailing 30-day asset returns. Rising dispersion suggests rotation pressure, crowded single-theme exposure, or idiosyncratic catalyst sensitivity.
+- **Majors vs alt/DeFi beta basket:** equal-weight BTC/ETH/SOL compared with AVAX plus UNI/AAVE/LDO/MKR/CRV. This is not a trade recommendation; it is a clean way to discuss whether catalyst sensitivity is being expressed through majors or higher-beta token ecosystems.
+
 ### 7. Liquidity & DeFi Participation Findings
 
 - Tracked DeFi TVL across Ethereum, Solana, Arbitrum, and Base aggregates to **$57.0B** as of 2026-05-08.
@@ -125,7 +133,7 @@ ETH on-chain: **Etherscan's free-tier `stats` endpoints returned `NOTOK` (Pro-on
 
 1. **Don't trade Fear & Greed directionally on its own.** With every asset's peak lead-lag at −1 day, F&G is a confirmation tool, not an alpha. The right operational use is to threshold it into the regime classifier — F&G < 40 + drawdown < −15% is a clean Risk-off filter that the rule engine already uses.
 2. **Differentiate scheduled from surprise events when sizing event-driven exposure.** The cross-asset event-type ranking indicates where information is genuinely surprising. Calendar-driven events (FOMC, CPI, ETF launches) generated smaller short-window reactions in the sample, consistent with substantial pre-discounting.
-3. **DeFi tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors in the sample.** The top-10 impact list disproportionately features DeFi names rather than majors, even after controlling for baseline volatility. Consider this when sizing higher-beta event expressions.
+3. **DeFi beta tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors in the sample.** The top-10 impact list disproportionately features DeFi names rather than majors, even after controlling for baseline volatility. Consider this when sizing higher-beta event expressions.
 4. **Liquidity stress combined with abnormal on-chain activity is a risk configuration to monitor or hedge.** Both signals coincided with the largest drawdowns in the sample. Treat their joint occurrence as a risk-management signal rather than a contrarian buy trigger.
 
 ### 10. Limitations

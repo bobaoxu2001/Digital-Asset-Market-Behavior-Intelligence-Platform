@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 
 REGIME_COLORS = {
@@ -31,6 +30,72 @@ def indexed_price_chart(market: pd.DataFrame, assets: list[str]) -> go.Figure:
         yaxis_title="Index (start=100)",
         template="plotly_dark",
         height=360,
+        margin=dict(l=10, r=10, t=40, b=10),
+    )
+    return fig
+
+
+def market_breadth_chart(features: pd.DataFrame) -> go.Figure:
+    """Cross-asset participation signal from the wide feature table."""
+    if features.empty or "market_breadth_positive_7d" not in features.columns:
+        return go.Figure()
+    d = features.drop_duplicates("date").sort_values("date")
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=d["date"],
+        y=d["market_breadth_positive_7d"] * 100,
+        mode="lines",
+        name="% assets positive over 7d",
+        line=dict(color="#5AD8A6", width=2),
+    ))
+    if "cross_asset_return_dispersion_30d" in d.columns:
+        fig.add_trace(go.Scatter(
+            x=d["date"],
+            y=d["cross_asset_return_dispersion_30d"] * 100,
+            mode="lines",
+            name="30d return dispersion",
+            yaxis="y2",
+            line=dict(color="#F6BD16", width=1.6),
+        ))
+    fig.add_hline(y=50, line_dash="dot", line_color="#94A3B8")
+    fig.update_layout(
+        title="Market breadth and rotation stress",
+        xaxis_title=None,
+        yaxis=dict(title="% assets positive 7d", range=[0, 100]),
+        yaxis2=dict(title="Dispersion %", overlaying="y", side="right"),
+        template="plotly_dark",
+        height=320,
+        margin=dict(l=10, r=10, t=40, b=10),
+    )
+    return fig
+
+
+def asset_rotation_chart(features: pd.DataFrame) -> go.Figure:
+    """Equal-weight major assets vs alt/DeFi beta basket indexed to 100."""
+    if features.empty:
+        return go.Figure()
+    df = features[["date", "asset", "daily_return"]].dropna().copy()
+    if df.empty:
+        return go.Figure()
+
+    groups = {
+        "Majors: BTC/ETH/SOL": ["BTC", "ETH", "SOL"],
+        "Alt/DeFi beta basket": ["UNI", "AAVE", "LDO", "MKR", "CRV", "AVAX"],
+    }
+    fig = go.Figure()
+    for label, members in groups.items():
+        sub = df[df["asset"].isin(members)]
+        if sub.empty:
+            continue
+        ew = sub.groupby("date", as_index=False)["daily_return"].mean().sort_values("date")
+        ew["index"] = (1 + ew["daily_return"].fillna(0)).cumprod() * 100
+        fig.add_trace(go.Scatter(x=ew["date"], y=ew["index"], mode="lines", name=label))
+    fig.update_layout(
+        title="Asset rotation: majors vs alt/DeFi beta basket",
+        xaxis_title=None,
+        yaxis_title="Equal-weight index (start=100)",
+        template="plotly_dark",
+        height=340,
         margin=dict(l=10, r=10, t=40, b=10),
     )
     return fig
@@ -82,8 +147,22 @@ def vol_chart(features: pd.DataFrame, asset: str) -> go.Figure:
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=d["date"], y=d["rolling_30d_volatility"], mode="lines", name="30d realized vol"))
     fig.add_trace(go.Scatter(x=d["date"], y=d["rolling_7d_volatility"], mode="lines", name="7d realized vol"))
+    if "rolling_30d_volatility_percentile_365d" in d.columns:
+        fig.add_trace(go.Scatter(
+            x=d["date"],
+            y=d["rolling_30d_volatility_percentile_365d"],
+            mode="lines",
+            name="365d vol percentile",
+            yaxis="y2",
+            line=dict(color="#F6BD16", width=1.4, dash="dot"),
+        ))
     fig.update_layout(
-        title=f"{asset}: realized volatility (annualized)", template="plotly_dark", height=320, margin=dict(l=10, r=10, t=40, b=10),
+        title=f"{asset}: realized volatility and percentile",
+        yaxis=dict(title="Annualized vol"),
+        yaxis2=dict(title="Percentile", overlaying="y", side="right", range=[0, 1]),
+        template="plotly_dark",
+        height=320,
+        margin=dict(l=10, r=10, t=40, b=10),
     )
     return fig
 
@@ -91,9 +170,23 @@ def vol_chart(features: pd.DataFrame, asset: str) -> go.Figure:
 def regime_distribution(features: pd.DataFrame, assets: list[str]) -> go.Figure:
     sub = features[features["asset"].isin(assets)]
     counts = sub.groupby(["asset", "regime"]).size().reset_index(name="days")
-    fig = px.bar(counts, x="asset", y="days", color="regime",
-                 color_discrete_map=REGIME_COLORS, template="plotly_dark",
-                 title="Regime distribution by asset")
+    fig = go.Figure()
+    regimes = [r for r in REGIME_COLORS if r in set(counts["regime"])]
+    for regime in regimes:
+        d = counts[counts["regime"] == regime]
+        fig.add_trace(go.Bar(
+            x=d["asset"],
+            y=d["days"],
+            name=regime,
+            marker_color=REGIME_COLORS.get(regime, "#B6B6B6"),
+        ))
+    fig.update_layout(
+        barmode="stack",
+        template="plotly_dark",
+        title="Regime distribution by asset",
+        xaxis_title=None,
+        yaxis_title="Days",
+    )
     fig.update_layout(height=360, margin=dict(l=10, r=10, t=40, b=10))
     return fig
 
@@ -111,6 +204,30 @@ def sentiment_price_chart(features: pd.DataFrame, asset: str) -> go.Figure:
     return fig
 
 
+def sentiment_corr_chart(features: pd.DataFrame, asset: str) -> go.Figure:
+    d = features[features["asset"] == asset].sort_values("date")
+    fig = go.Figure()
+    if "sentiment_return_corr_30d" in d.columns:
+        fig.add_trace(go.Scatter(
+            x=d["date"],
+            y=d["sentiment_return_corr_30d"],
+            mode="lines",
+            name="30d corr(ΔF&G, return)",
+            line=dict(color="#5AD8A6", width=2),
+        ))
+    fig.add_hline(y=0, line_dash="dot", line_color="#94A3B8")
+    fig.update_layout(
+        title=f"{asset}: rolling sentiment-return correlation",
+        xaxis_title=None,
+        yaxis_title="30d correlation",
+        yaxis=dict(range=[-1, 1]),
+        template="plotly_dark",
+        height=300,
+        margin=dict(l=10, r=10, t=40, b=10),
+    )
+    return fig
+
+
 def lead_lag_chart(ll: pd.DataFrame, asset: str) -> go.Figure:
     d = ll[ll["asset"] == asset].sort_values("lag")
     fig = go.Figure(go.Bar(x=d["lag"], y=d["corr"], marker_color=["#5AD8A6" if x >= 0 else "#E8684A" for x in d["corr"]]))
@@ -123,8 +240,18 @@ def lead_lag_chart(ll: pd.DataFrame, asset: str) -> go.Figure:
 
 
 def tvl_chart(chain_view: pd.DataFrame) -> go.Figure:
-    fig = px.area(chain_view.sort_values("date"), x="date", y="tvl_usd", color="chain",
-                  template="plotly_dark", title="DeFi TVL by chain")
+    fig = go.Figure()
+    colors = ["#5B8FF9", "#5AD8A6", "#F6BD16", "#9270CA", "#6DC8EC", "#E8684A"]
+    for i, (chain, d) in enumerate(chain_view.sort_values("date").groupby("chain")):
+        fig.add_trace(go.Scatter(
+            x=d["date"],
+            y=d["tvl_usd"],
+            mode="lines",
+            name=chain,
+            stackgroup="one",
+            line=dict(width=0.5, color=colors[i % len(colors)]),
+        ))
+    fig.update_layout(template="plotly_dark", title="DeFi TVL by chain", xaxis_title=None, yaxis_title="TVL (USD)")
     fig.update_layout(height=380, margin=dict(l=10, r=10, t=40, b=10))
     return fig
 
@@ -156,7 +283,7 @@ def event_impact_bar(es: pd.DataFrame, top_n: int = 10) -> go.Figure:
     d = es.sort_values("impact_score", ascending=False).head(top_n).copy()
     d["label"] = d["event_name"].str.slice(0, 50) + " — " + d["asset"]
     fig = go.Figure(go.Bar(x=d["impact_score"], y=d["label"], orientation="h", marker_color="#9270CA"))
-    fig.update_layout(title=f"Top {top_n} events by impact score (|7d return| + max(vol_ratio-1, 0))",
+    fig.update_layout(title=f"Top {top_n} events by impact score (directional move + vol expansion)",
                       template="plotly_dark", height=420, margin=dict(l=10, r=10, t=40, b=10), yaxis=dict(autorange="reversed"))
     return fig
 

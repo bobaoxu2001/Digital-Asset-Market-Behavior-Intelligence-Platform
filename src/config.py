@@ -52,7 +52,6 @@ REGIME_PARAMS = CFG["regime"]
 COINGECKO_API_KEY = os.getenv("COINGECKO_API_KEY", "").strip()
 ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY", "").strip()
 FRED_API_KEY = os.getenv("FRED_API_KEY", "").strip()
-CRYPTOPANIC_API_KEY = os.getenv("CRYPTOPANIC_API_KEY", "").strip()
 
 
 def has_key(name: str) -> bool:

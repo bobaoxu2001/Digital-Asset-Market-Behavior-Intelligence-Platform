@@ -1,6 +1,6 @@
 # Digital Asset Market Behavior Intelligence Platform
 
-*A multi-source research platform that explains how and why crypto markets move.*
+*An interview-ready crypto research terminal for market behavior, liquidity stress, sentiment confirmation, on-chain activity, and catalyst reaction.*
 
 [![CI](https://github.com/bobaoxu2001/Digital-Asset-Market-Behavior-Intelligence-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/bobaoxu2001/Digital-Asset-Market-Behavior-Intelligence-Platform/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/)
@@ -12,16 +12,16 @@
 
 ![Executive Overview](assets/screenshots/executive_overview.png)
 
-A multi-source intelligence platform that fuses price, sentiment, liquidity and DeFi participation, on-chain activity, macro context, and curated events into interpretable behavior regimes, formal event studies, and strategy-relevant insights — the deliverables a digital-asset strategy team actually consumes.
+A multi-source intelligence platform that fuses price, volatility, breadth, sentiment, liquidity and DeFi participation, on-chain activity, macro context, and curated events into interpretable behavior regimes, formal event studies, and strategy-relevant insights. It is built as a working analytical product, not a notebook demo: the Streamlit dashboard reads reproducible parquet outputs, discloses sample mode, and gives an interviewer a three-minute story.
 
 ## At a Glance
 
 | Category | Details |
 |---|---|
 | Objective | Explain crypto market behavior, not predict next-day price |
-| Coverage | BTC, ETH, SOL plus a six-token DeFi basket; daily; 2023-01-01 to present |
+| Coverage | BTC, ETH, SOL, AVAX, and five DeFi beta assets (UNI, AAVE, LDO, MKR, CRV); daily; 2023-01-01 to present |
 | Data Sources | yfinance, CoinGecko, Fear & Greed Index, DeFiLlama, Blockchain.com, Etherscan, FRED, GDELT, curated event calendar |
-| Core Methods | Rule-based regime classification, event study, sentiment-price lead-lag, liquidity-stress composite, on-chain activity index |
+| Core Methods | Rule-based regime classification, event study, sentiment-price lead-lag, rolling sentiment-return correlation, market breadth, liquidity-stress composite, on-chain activity index |
 | Main Outputs | Six-page Streamlit dashboard, research memo, one-page case study, three analysis notebooks |
 | Key Finding | Fear & Greed lags price by approximately one day across all nine assets; event categories differ materially in short-window market reaction |
 
@@ -37,6 +37,19 @@ A multi-source intelligence platform that fuses price, sentiment, liquidity and 
 
 ---
 
+## 30-Second Pitch
+
+> I built a crypto market-behavior research terminal rather than a price-prediction notebook. It combines market data, sentiment, DeFi liquidity, stablecoin supply, on-chain proxies, macro context, and a curated event calendar into interpretable regimes and event-reaction studies. The dashboard helps answer strategy questions: is this move broad or isolated, is sentiment confirming price, are liquidity conditions stressed, which assets react most to catalysts, and what should a research analyst monitor next?
+
+## How to Demo This Project in an Interview
+
+1. Open the **Executive Overview** and call out the sample-data disclosure, BTC regime, drawdown, breadth, sentiment, and liquidity-stress KPIs.
+2. Move to **Strategy Insights** to show event-type impact, majors-vs-DeFi beta rotation, and the non-causal monitoring framework.
+3. Open **Sentiment & Event Reaction** and explain why Fear & Greed is a confirmation signal, not a forward signal.
+4. End with **On-chain Activity** and limitations: free-tier ETH data uses a documented proxy; exchange netflow is not fabricated.
+
+---
+
 ## Headline Findings
 
 > **1. Sentiment lags price by approximately one day across all tracked assets.** Peak |corr| between daily change in Fear & Greed and asset return occurs at **lag = −1** for every asset in the sample (BTC +0.65, ETH +0.55, SOL +0.49). The implication is that Fear & Greed is best used as a confirming indicator, not as a forward-looking signal.
@@ -47,6 +60,8 @@ A multi-source intelligence platform that fuses price, sentiment, liquidity and 
 
 > **4. The joint occurrence of liquidity stress and abnormal on-chain activity is a risk configuration to monitor or hedge.** Both signals coincided with the largest sample drawdowns (March 2023 SVB / USDC depeg week, August 2024 yen-carry unwind).
 
+> **5. Cross-asset breadth separates broad participation from isolated moves.** The dashboard now tracks the share of assets with positive 7-day returns and 30-day return dispersion, making it easier to discuss risk-on/risk-off rotation instead of reading BTC alone.
+
 > Event-study results should be interpreted as short-window market reactions associated with event categories, not as strict causal estimates.
 
 ---
@@ -54,17 +69,17 @@ A multi-source intelligence platform that fuses price, sentiment, liquidity and 
 ## Dashboard Overview
 
 ### Page 1 — Executive Overview
-Multi-asset price (indexed to 100), drawdown panel, current-regime KPI cards, Fear & Greed score, DeFi TVL, liquidity stress score.
+Multi-asset price (indexed to 100), drawdown panel, current-regime KPI cards, volatility regime, Fear & Greed score, market breadth, liquidity stress, and a built-in interview demo guide.
 
 ![Executive Overview](assets/screenshots/executive_overview.png)
 
 ### Page 2 — Market Regime and Volatility
-Regime ribbon overlaid on price, realized-volatility curves, regime distribution, regime-transition table.
+Regime ribbon overlaid on price, realized-volatility curves, trailing volatility percentile, drawdown/rebound KPIs, regime distribution, and regime-transition table.
 
 ![Market Regime and Volatility](assets/screenshots/market_regime_volatility.png)
 
 ### Page 3 — Sentiment and Event Reaction
-Sentiment vs price (dual axis), curated-events overlay, lead-lag CCF, per-event reaction anatomy. The page includes a *Methodology note* expander explaining the lag interpretation.
+Sentiment vs price (dual axis), rolling 30-day sentiment-return correlation, curated-events overlay, lead-lag CCF, and per-event reaction anatomy for `[-1,+1]`, `[-3,+3]`, `[-7,+7]`, and post-event drift.
 
 ![Sentiment and Event Reaction](assets/screenshots/sentiment_event_reaction.png)
 
@@ -79,7 +94,7 @@ BTC native on-chain (Blockchain.com Charts) and ETH activity proxy (DeFiLlama-de
 ![On-chain Activity](assets/screenshots/onchain_activity.png)
 
 ### Page 6 — Strategy Insights
-Top-ten most impactful events, event-type by asset heatmap, regime-conditional return distributions, and a structured *What happened / Why it matters / What to monitor next* panel. The page includes a *Methodology note* expander on the impact score and non-causal interpretation.
+Top-ten most impactful events, event-type by asset heatmap, majors-vs-DeFi beta rotation, market breadth, regime-conditional return distributions, and a structured *What happened / Why it matters / What to monitor next* panel. The page includes a *Methodology note* expander on the impact score and non-causal interpretation.
 
 ![Strategy Insights](assets/screenshots/strategy_insights.png)
 
@@ -131,17 +146,19 @@ flowchart LR
   Analysis -.parquet.-> Dashboard
 ```
 
-Data flow: raw JSON cached under `data/raw/<source>/`, cleaned parquet under `data/processed/`. The dashboard never calls APIs live — it reads parquet only. Every rolling feature is trailing-only and regime labels at time *t* use only features known by end of day *t*.
+Data flow: raw JSON cached under `data/raw/<source>/`, cleaned parquet under `data/processed/`. The dashboard never calls APIs live — it reads parquet only. Every rolling feature is trailing-only and regime labels at time *t* use only features known by end of day *t*. Event-study tables are descriptive reaction windows, not causal estimates.
 
 ---
 
-## Role Alignment
+## Why This Project Fits a Digital Asset Market Behavior & Strategy Analyst Role
+
+The project is deliberately framed around market behavior, not point prediction. It shows the ability to monitor volatile multi-asset crypto markets, separate broad participation from isolated moves, interpret sentiment as confirmation rather than causal alpha, document data limitations, and turn mixed market / DeFi / on-chain / event inputs into concise strategy readouts.
 
 | Job description requirement | Module / output |
 |---|---|
-| Analyze price movements, volatility, and trading behavior across major digital assets | Market features and regime classifier (BTC, ETH, SOL plus DeFi basket) |
-| Monitor sentiment, liquidity flows, and CEX / DeFi participation | Fear & Greed sentiment, DeFiLlama TVL, stablecoin supply, composite liquidity-stress score |
-| Identify patterns in user behavior across exchanges, DeFi, and tokens | Per-chain TVL, protocol-level TVL, cross-asset event impact |
+| Analyze price movements, volatility, and trading behavior across major digital assets | Market features, volatility percentile, drawdown/rebound, breadth, and regime classifier |
+| Monitor sentiment, liquidity flows, and CEX / DeFi participation | Fear & Greed sentiment, rolling sentiment-return correlation, DeFiLlama TVL, stablecoin supply, composite liquidity-stress score |
+| Identify patterns in user behavior across exchanges, DeFi, and tokens | Per-chain TVL, protocol-level TVL, majors-vs-DeFi beta rotation, cross-asset event impact |
 | Track on-chain wallet movements, transaction flows, and capital distribution | Blockchain.com (BTC) and Etherscan / DeFiLlama proxy (ETH) on-chain features |
 | Support development of strategy insights | Strategy Insights dashboard page and research memo |
 | Evaluate market reactions to news, events, and ecosystem developments | Curated 46-event calendar and formal event study |
@@ -166,7 +183,7 @@ cp .env.example .env
 make ingest          # all sources, with graceful fallbacks
 make features        # ~5 seconds
 make analysis        # ~5 seconds
-make test            # 7 sanity checks
+make test            # feature, event-study, sample-mode, and dashboard-data sanity checks
 
 # 4. Launch the dashboard
 make dashboard       # Streamlit at http://localhost:8501

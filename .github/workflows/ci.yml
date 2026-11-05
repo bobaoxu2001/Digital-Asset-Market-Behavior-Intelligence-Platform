@@ -31,7 +31,10 @@ jobs:
       - name: Show pinned versions (debug)
         run: |
           python --version
-          pip show pandas plotly streamlit | grep -E '^(Name|Version)'
+          pip show pandas plotly streamlit pyarrow | grep -E '^(Name|Version)'
+
+      - name: Check Parquet runtime
+        run: python -c "import pyarrow, pyarrow.parquet; print(pyarrow.__version__)"
 
       - name: Run pytest
         # Tests are pure-Python and do not require .env or live APIs.
@@ -69,7 +72,7 @@ jobs:
           if [ -f .env ]; then
             echo "::error::.env should NEVER be committed!"; exit 1
           fi
-          if grep -RIn -E "(CG-p[A-Za-z0-9]+|QFKQUA|fdb033e26)" --include='*.py' --include='*.md' --include='*.yml' --include='*.yaml' --exclude-dir='.github' . ; then
+          if grep -RIn -E "(CG-p[A-Za-z0-9]+|QFKQ[U]A|fdb033e2[6])" --include='*.py' --include='*.md' --include='*.yml' --include='*.yaml' --exclude-dir='.github' . ; then
             echo "::error::Possible API key leak in tracked files"; exit 1
           fi
           echo "OK: .env absent and no obvious key fragments in tracked files"

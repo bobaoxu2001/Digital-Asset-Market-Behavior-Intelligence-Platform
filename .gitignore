@@ -13,3 +13,6 @@ __pycache__/
 venv/
 .pytest_cache/
 .streamlit/secrets.toml
+
+# Personal interview preparation is not a public project deliverable.
+/WhatIf_Capital_*

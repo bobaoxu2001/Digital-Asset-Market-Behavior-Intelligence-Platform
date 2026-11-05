@@ -12,9 +12,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from dashboard.components.charts import drawdown_chart, regime_distribution, regime_timeline, vol_chart
-from dashboard.components.insights import regime_insight
+from dashboard.components.insights import regime_takeaway
 from dashboard.components.kpis import fmt_pct, kpi_row
 from dashboard.components.banner import render_sample_mode_banner
+from dashboard.components.layout import apply_institutional_theme, render_analyst_takeaway, render_page_header, render_sidebar_context
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -22,9 +23,12 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Market Regime & Volatility", layout="wide")
+apply_institutional_theme()
 render_sample_mode_banner()
-st.title("Market Regime & Volatility")
-st.caption("Rule-based regime classification (7 labels, explicit precedence) — regime ribbon, vol curves, transitions.")
+render_page_header(
+    "Market Regime & Volatility",
+    "Rule-based market-state classification with realized-volatility percentile, drawdown, and transition diagnostics.",
+)
 
 feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 if feats.empty:
@@ -33,6 +37,14 @@ if feats.empty:
 
 all_assets = sorted(feats["asset"].unique())
 default_assets = [a for a in ["BTC", "ETH", "SOL"] if a in all_assets]
+render_sidebar_context(
+    "Regime method",
+    [
+        "Labels use explicit precedence: Event-driven, Liquidity Stress, Risk-off, On-chain Activity Spike, Momentum, Calm, Neutral.",
+        "Volatility regime uses trailing realized-volatility percentile, not future returns.",
+        "Transition counts are monitoring diagnostics, not predictive model outputs.",
+    ],
+)
 with st.sidebar:
     assets = st.multiselect("Assets", all_assets, default=default_assets)
     asset_focus = st.selectbox("Focus asset", assets if assets else all_assets, index=0)
@@ -48,28 +60,32 @@ top_regime = last90["regime"].value_counts().idxmax() if not last90.empty else "
 transitions = int((last90["regime"] != last90["regime"].shift()).sum() - 1) if not last90.empty else 0
 cur_vol = (g["rolling_30d_volatility"].iloc[-1] if not g.empty else 0) or 0
 cur_dd = (g["drawdown"].iloc[-1] if not g.empty else 0) or 0
+cur_rebound = (g["rebound_from_30d_low"].iloc[-1] if "rebound_from_30d_low" in g and not g.empty else 0) or 0
+cur_vol_regime = (g["volatility_regime"].iloc[-1] if "volatility_regime" in g and not g.empty else "—")
 
 items = [
     (f"{asset_focus} dominant regime (90d)", top_regime),
     ("Regime transitions (90d)", str(transitions)),
+    ("Volatility regime", str(cur_vol_regime)),
     ("Current 30d vol", fmt_pct(cur_vol)),
     ("Current drawdown", fmt_pct(cur_dd)),
+    ("Rebound from 30d low", fmt_pct(cur_rebound)),
 ]
 kpi_row(items)
 
 col1, col2 = st.columns(2)
 with col1:
-    st.plotly_chart(vol_chart(sub, asset_focus), use_container_width=True)
+    st.plotly_chart(vol_chart(sub, asset_focus), width="stretch")
 with col2:
-    st.plotly_chart(drawdown_chart(sub, assets), use_container_width=True)
+    st.plotly_chart(drawdown_chart(sub, assets), width="stretch")
 
-st.plotly_chart(regime_timeline(sub, asset_focus), use_container_width=True)
-st.plotly_chart(regime_distribution(sub, assets), use_container_width=True)
+st.plotly_chart(regime_timeline(sub, asset_focus), width="stretch")
+st.plotly_chart(regime_distribution(sub, assets), width="stretch")
 
 st.subheader("Regime transition matrix (last 365 days, focus asset)")
 gtail = g.tail(365)
 if not gtail.empty:
     transitions_df = pd.crosstab(gtail["regime"], gtail["regime"].shift(-1).fillna("(end)"))
-    st.dataframe(transitions_df, use_container_width=True)
+    st.dataframe(transitions_df, width="stretch")
 
-st.info(regime_insight(feats, asset_focus))
+render_analyst_takeaway(*regime_takeaway(feats, asset_focus))

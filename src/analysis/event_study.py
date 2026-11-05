@@ -3,7 +3,8 @@
 Output: data/processed/event_study.parquet with rows = (event_date, asset).
 Columns include:
     event_date, event_type, event_name, severity, asset,
-    ret_pre1_post1, ret_t_t3, ret_t_t7,
+    ret_pre1_post1, ret_pre3_post3, ret_pre7_post7,
+    ret_t_t3, ret_t_t7, post_event_drift_3_7,
     vol_pre, vol_post, vol_ratio,
     volume_pre_mean, volume_post_mean, volume_ratio,
     sentiment_pre, sentiment_post, sentiment_shift,
@@ -44,8 +45,11 @@ def study_event(event: pd.Series, asset_df: pd.DataFrame, sent: pd.DataFrame, li
     post = _window_slice(asset_df, ed, 1, 5)
 
     ret_pre1_post1 = _ret_between(asset_df, ed, -1, 1)
+    ret_pre3_post3 = _ret_between(asset_df, ed, -3, 3)
+    ret_pre7_post7 = _ret_between(asset_df, ed, -7, 7)
     ret_t_t3 = _ret_between(asset_df, ed, 0, 3)
     ret_t_t7 = _ret_between(asset_df, ed, 0, 7)
+    post_event_drift_3_7 = _ret_between(asset_df, ed, 3, 7)
 
     vol_pre = pre["log_return"].std() * np.sqrt(365) if len(pre) > 1 else np.nan
     vol_post = post["log_return"].std() * np.sqrt(365) if len(post) > 1 else np.nan
@@ -91,8 +95,11 @@ def study_event(event: pd.Series, asset_df: pd.DataFrame, sent: pd.DataFrame, li
         "severity": int(event["severity"]),
         "asset": asset,
         "ret_pre1_post1": ret_pre1_post1,
+        "ret_pre3_post3": ret_pre3_post3,
+        "ret_pre7_post7": ret_pre7_post7,
         "ret_t_t3": ret_t_t3,
         "ret_t_t7": ret_t_t7,
+        "post_event_drift_3_7": post_event_drift_3_7,
         "vol_pre": vol_pre,
         "vol_post": vol_post,
         "vol_ratio": vol_ratio,

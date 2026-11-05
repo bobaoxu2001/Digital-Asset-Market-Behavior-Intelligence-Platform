@@ -12,10 +12,11 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from dashboard.components.charts import lead_lag_chart, sentiment_price_chart
-from dashboard.components.insights import sentiment_insight
+from dashboard.components.charts import lead_lag_chart, sentiment_corr_chart, sentiment_price_chart
+from dashboard.components.insights import sentiment_takeaway
 from dashboard.components.kpis import fmt_pct, kpi_row
 from dashboard.components.banner import render_sample_mode_banner
+from dashboard.components.layout import apply_institutional_theme, render_analyst_takeaway, render_page_header, render_sidebar_context
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -23,9 +24,12 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Sentiment & Event Reaction", layout="wide")
+apply_institutional_theme()
 render_sample_mode_banner()
-st.title("Sentiment & Event Reaction")
-st.caption("Fear & Greed vs price, lead-lag CCF, curated-event overlay, and per-event reaction anatomy.")
+render_page_header(
+    "Sentiment & Event Reaction",
+    "Fear & Greed confirmation, rolling sentiment-return correlation, curated catalyst overlays, and event-window anatomy.",
+)
 
 with st.expander("Methodology note — how to read the lead-lag chart"):
     st.markdown(
@@ -50,6 +54,14 @@ if feats.empty:
     st.stop()
 
 all_assets = sorted(feats["asset"].unique())
+render_sidebar_context(
+    "Interpretation guardrail",
+    [
+        "Positive lag means sentiment leads returns; negative lag means sentiment reacts after returns.",
+        "Event windows are descriptive reactions around dates, not causal estimates.",
+        "Sample mode keeps charts reproducible and avoids live-news/API claims.",
+    ],
+)
 with st.sidebar:
     asset = st.selectbox("Asset", [a for a in ["BTC", "ETH", "SOL"] if a in all_assets] + [a for a in all_assets if a not in ("BTC", "ETH", "SOL")])
     event_types = ["(all)"] + (sorted(events["event_type"].dropna().unique().tolist()) if not events.empty else [])
@@ -71,9 +83,14 @@ if not ll.empty:
     if not d.empty:
         best = d.loc[d["corr"].abs().idxmax()]
         items.append(("Sentiment lead/lag (best |r|)", f"lag {int(best['lag'])}d  r={best['corr']:+.2f}"))
+if "sentiment_return_corr_30d" in feats.columns:
+    s = feats[feats["asset"] == asset].sort_values("date")["sentiment_return_corr_30d"].dropna()
+    if not s.empty:
+        items.append(("Rolling corr 30d", f"{s.iloc[-1]:+.2f}"))
 kpi_row(items)
 
-st.plotly_chart(sentiment_price_chart(feats, asset), use_container_width=True)
+st.plotly_chart(sentiment_price_chart(feats, asset), width="stretch")
+st.plotly_chart(sentiment_corr_chart(feats, asset), width="stretch")
 
 # Event markers overlaid on price
 if not events.empty:
@@ -93,7 +110,7 @@ if not events.empty:
             name="Events",
         ))
     fig.update_layout(template="plotly_dark", height=380, title=f"{asset}: events overlay", margin=dict(l=10, r=10, t=40, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # Selected event reaction "anatomy"
 if focus_event != "(none)" and not es.empty:
@@ -101,13 +118,17 @@ if focus_event != "(none)" and not es.empty:
     if not sub.empty:
         st.subheader(f"Event reaction: {focus_event}")
         row = sub.iloc[0]
-        cols = st.columns(4)
+        cols = st.columns(3)
         cols[0].metric("[-1, +1] return", fmt_pct(row["ret_pre1_post1"]))
-        cols[1].metric("[t, +3] return", fmt_pct(row["ret_t_t3"]))
-        cols[2].metric("[t, +7] return", fmt_pct(row["ret_t_t7"]))
-        cols[3].metric("Vol ratio post/pre", f"{row['vol_ratio']:.2f}" if pd.notna(row["vol_ratio"]) else "—")
+        cols[1].metric("[-3, +3] return", fmt_pct(row.get("ret_pre3_post3")))
+        cols[2].metric("[-7, +7] return", fmt_pct(row.get("ret_pre7_post7")))
+        cols = st.columns(3)
+        cols[0].metric("[t, +3] return", fmt_pct(row["ret_t_t3"]))
+        cols[1].metric("[t, +7] return", fmt_pct(row["ret_t_t7"]))
+        cols[2].metric("Post-event drift [+3,+7]", fmt_pct(row.get("post_event_drift_3_7")))
+        st.caption(f"Post/pre volatility ratio: {row['vol_ratio']:.2f}" if pd.notna(row["vol_ratio"]) else "Post/pre volatility ratio: N/A")
 
 if not ll.empty:
-    st.plotly_chart(lead_lag_chart(ll, asset), use_container_width=True)
+    st.plotly_chart(lead_lag_chart(ll, asset), width="stretch")
 
-st.info(sentiment_insight(ll, asset) if not ll.empty else "Lead-lag data unavailable.")
+render_analyst_takeaway(*sentiment_takeaway(feats, ll, asset))

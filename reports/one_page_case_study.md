@@ -2,9 +2,9 @@
 
 *A research platform for digital-asset markets covering regimes, events, sentiment, liquidity, and on-chain activity.*
 
-**Author:** Xu Ao &nbsp;|&nbsp; **Coverage:** BTC, ETH, SOL, plus a six-token DeFi basket; daily; 2023-01-01 to today
+**Author:** Xu Ao &nbsp;|&nbsp; **Coverage:** BTC, ETH, SOL, AVAX, and five DeFi beta assets; daily; 2023-01-01 to today
 **Repository:** [github.com/bobaoxu2001/Digital-Asset-Market-Behavior-Intelligence-Platform](https://github.com/bobaoxu2001/Digital-Asset-Market-Behavior-Intelligence-Platform)
-**Live dashboard:** local — `make dashboard` &nbsp;|&nbsp; **Demo mode:** `make demo`
+**Live dashboard:** [crypto-market-behavior.streamlit.app](https://crypto-market-behavior.streamlit.app/) &nbsp;|&nbsp; **Local demo:** `make demo`
 
 ---
 
@@ -32,10 +32,10 @@ All sources are free-tier and all have documented fallbacks.
 
 ### Methodology
 
-- Approximately fifty daily features per (date, asset): returns, realized volatility, volume z-score, drawdown, sentiment z-score and shifts, TVL changes, composite liquidity-stress score, on-chain activity index, macro layer, event flag / severity / days-since / days-to.
+- Approximately sixty daily features per (date, asset): returns, realized volatility and volatility percentile, volume z-score, drawdown, rebound from 30d low, market breadth, sentiment-return correlation, TVL changes, composite liquidity-stress score, on-chain activity index, macro layer, event flag / severity / days-since / days-to.
 - Rule-based regime classifier with explicit precedence: Event-driven → Liquidity Stress → Risk-off → On-chain Activity Spike → Momentum → Calm → Neutral.
-- Event study: per (event, asset) — `t-1 → t+1`, `t → t+3`, `t → t+7` cumulative log returns; pre / post realized volatility and average volume; sentiment shift; TVL and on-chain reaction; composite impact score.
-- Lead-lag: cross-correlation of `Δsentiment_t` against `return_{t+k}` for `k ∈ [-7, +7]`.
+- Event study: per (event, asset) — `[-1,+1]`, `[-3,+3]`, `[-7,+7]`, `t → t+3`, `t → t+7`, and post-event drift; pre / post realized volatility and average volume; sentiment shift; TVL and on-chain reaction; composite impact score.
+- Lead-lag: cross-correlation of `Δsentiment_t` against `return_{t+k}` for `k in [-7, +7]`.
 - Look-ahead control: every rolling feature is trailing-only; regime labels at time *t* use only features known by end of day *t*.
 
 ### Key Findings
@@ -51,7 +51,7 @@ All sources are free-tier and all have documented fallbacks.
 
 1. Use Fear & Greed inside the regime engine rather than as a stand-alone directional signal.
 2. Differentiate scheduled, well-anticipated events (FOMC, CPI, ETF launches) from less-anticipated events (protocol upgrades, exchange incidents) when sizing event-driven exposure.
-3. DeFi tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors and are candidates for higher-beta event expressions when conviction is high.
+3. DeFi beta tokens (UNI, AAVE, LDO, MKR, CRV) showed systematically larger event-window moves than majors and are candidates for higher-beta event-expression monitoring when conviction is high.
 4. Treat the joint signal of liquidity stress and abnormal on-chain activity as a risk configuration to monitor or hedge.
 
 ### Why This Matters for Digital Asset Research Teams
