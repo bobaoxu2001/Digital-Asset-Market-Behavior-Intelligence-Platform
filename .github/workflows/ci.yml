@@ -31,7 +31,10 @@ jobs:
       - name: Show pinned versions (debug)
         run: |
           python --version
-          pip show pandas plotly streamlit | grep -E '^(Name|Version)'
+          pip show pandas plotly streamlit pyarrow | grep -E '^(Name|Version)'
+
+      - name: Check Parquet runtime
+        run: python -c "import pyarrow, pyarrow.parquet; print(pyarrow.__version__)"
 
       - name: Run pytest
         # Tests are pure-Python and do not require .env or live APIs.

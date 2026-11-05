@@ -3,7 +3,7 @@ numpy>=1.24,<2.0
 requests>=2.31
 python-dotenv>=1.0
 pyyaml>=6.0
-pyarrow>=14.0
+pyarrow==23.0.1
 scipy>=1.11
 plotly>=5.24,<6.0
 streamlit>=1.55,<2.0
