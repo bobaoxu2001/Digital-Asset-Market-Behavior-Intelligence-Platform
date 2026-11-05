@@ -28,6 +28,7 @@ from dashboard.components.charts import (  # noqa: E402
     indexed_price_chart,
     lead_lag_chart,
     liquidity_stress_chart,
+    market_breadth_chart,
     onchain_chart,
     regime_distribution,
     regime_timeline,
@@ -72,8 +73,8 @@ def page1_executive_overview(feats, summary):
     assets = ["BTC", "ETH", "SOL"]
     sub = feats[feats["asset"].isin(assets)]
     top = indexed_price_chart(sub, assets)
-    bottom = drawdown_chart(sub, assets)
-    fig = _stitch(top, bottom, "Executive Overview — multi-asset price & drawdown")
+    bottom = market_breadth_chart(feats)
+    fig = _stitch(top, bottom, "Executive Overview — multi-asset price & market breadth")
     _save(fig, "executive_overview.png")
 
 

@@ -14,8 +14,9 @@ if str(ROOT) not in sys.path:
 
 from dashboard.components.banner import render_sample_mode_banner
 from dashboard.components.charts import onchain_chart
-from dashboard.components.insights import onchain_insight
+from dashboard.components.insights import onchain_takeaway
 from dashboard.components.kpis import fmt_int, fmt_signed, kpi_row
+from dashboard.components.layout import apply_institutional_theme, render_analyst_takeaway, render_page_header, render_sidebar_context
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -23,10 +24,13 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="On-chain Activity", layout="wide")
+apply_institutional_theme()
 render_sample_mode_banner()
 
-st.title("On-chain Activity")
-st.caption("BTC native activity (Blockchain.com Charts) + ETH proxy activity (DeFiLlama-derived flux). Abnormal-day flags overlaid on price.")
+render_page_header(
+    "On-chain Activity",
+    "Native BTC activity and ETH free-tier proxy signals, with abnormal-activity flags shown against price behavior.",
+)
 
 with st.expander("Methodology note — ETH activity is a proxy on the free-tier stack"):
     st.markdown(
@@ -43,6 +47,15 @@ feats = read_parquet_safe(PROCESSED_DIR / "features.parquet")
 if feats.empty:
     st.error("Run the pipeline first.")
     st.stop()
+
+render_sidebar_context(
+    "On-chain honesty",
+    [
+        "BTC uses public native chain counters from Blockchain.com Charts.",
+        "ETH uses a DeFiLlama TVL-flux proxy unless Pro-tier Etherscan stats are available.",
+        "The page avoids fake exchange-flow claims because free sources do not label exchange wallets reliably.",
+    ],
+)
 
 
 # ---------------------------------------------------------------------------
@@ -135,7 +148,7 @@ if any(v == "N/A" for v in _kpi_values):
         "complete source coverage: `make ingest && make features && make analysis`."
     )
 
-st.plotly_chart(onchain_chart(feats, asset), use_container_width=True)
+st.plotly_chart(onchain_chart(feats, asset), width="stretch")
 
 # Tx count + price overlay
 if not g.empty and g["tx_count"].notna().any():
@@ -149,7 +162,7 @@ if not g.empty and g["tx_count"].notna().any():
         yaxis2=dict(title="Price", overlaying="y", side="right"),
         margin=dict(l=10, r=10, t=40, b=10),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # Abnormal markers on price
 if not g.empty:
@@ -163,7 +176,7 @@ if not g.empty:
         ))
     fig.update_layout(template="plotly_dark", height=320, title=f"{asset}: abnormal-activity flags overlaid on price",
                       margin=dict(l=10, r=10, t=40, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # ETH-specific note about Etherscan free tier limitation
 if asset == "ETH":
@@ -173,4 +186,4 @@ if asset == "ETH":
         "activity direction is informative; absolute units differ from native chain counters."
     )
 
-st.info(onchain_insight(feats, asset))
+render_analyst_takeaway(*onchain_takeaway(feats, asset))

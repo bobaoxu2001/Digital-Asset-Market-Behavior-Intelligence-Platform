@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.features.market_features import add_market_features
+from src.features.market_features import add_cross_asset_features, add_market_features, add_sentiment_return_correlation
 from src.features.regime_classifier import classify_row
 from src.config import REGIME_PARAMS
 
@@ -126,3 +126,56 @@ def test_event_study_window_alignment():
                             / enriched.set_index("date").loc[ed - pd.Timedelta(days=1), "price"]))
     actual = _ret_between(enriched, pd.Timestamp(ed), -1, 1)
     assert abs(actual - expected) < 1e-9
+
+
+def test_market_breadth_and_sentiment_corr_features():
+    """Cross-asset participation and rolling sentiment-return corr are generated cleanly."""
+    btc = _toy_market(80, asset="BTC", seed=11)
+    eth = _toy_market(80, asset="ETH", seed=12)
+    feats = add_cross_asset_features(add_market_features(pd.concat([btc, eth], ignore_index=True)))
+    assert "market_breadth_positive_7d" in feats.columns
+    assert feats["market_breadth_positive_7d"].dropna().between(0, 1).all()
+
+    dates = pd.date_range("2024-01-01", periods=80, freq="D")
+    sent = pd.DataFrame({"date": dates, "sentiment_score": np.linspace(35, 75, 80)})
+    feats = feats.merge(sent, on="date", how="left")
+    feats = add_sentiment_return_correlation(feats)
+    corr = feats["sentiment_return_corr_30d"].dropna()
+    assert not corr.empty
+    assert corr.between(-1, 1).all()
+
+
+def test_event_study_extended_windows():
+    """Extended event windows should align to calendar-close returns."""
+    from src.analysis.event_study import study_event
+
+    df = _toy_market(50)
+    enriched = add_market_features(df)
+    enriched["log_return"] = np.log(enriched["price"] / enriched["price"].shift(1))
+    ed = enriched["date"].iloc[25]
+    event = pd.Series({"date": ed, "event_type": "ETF", "event_name": "Toy event", "severity": 2})
+    row = study_event(event, enriched, pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+    idx = enriched.set_index("date")
+
+    expected_3 = float(np.log(idx.loc[ed + pd.Timedelta(days=3), "price"] / idx.loc[ed - pd.Timedelta(days=3), "price"]))
+    expected_7 = float(np.log(idx.loc[ed + pd.Timedelta(days=7), "price"] / idx.loc[ed - pd.Timedelta(days=7), "price"]))
+    drift = float(np.log(idx.loc[ed + pd.Timedelta(days=7), "price"] / idx.loc[ed + pd.Timedelta(days=3), "price"]))
+
+    assert abs(row["ret_pre3_post3"] - expected_3) < 1e-9
+    assert abs(row["ret_pre7_post7"] - expected_7) < 1e-9
+    assert abs(row["post_event_drift_3_7"] - drift) < 1e-9
+
+
+def test_demo_data_bootstrap_marker(tmp_path):
+    """Demo bootstrap should stage samples and leave an explicit sample-mode marker."""
+    from src.utils.demo_data import SAMPLE_MARKER_NAME, ensure_processed_data, is_sample_mode
+
+    sample = tmp_path / "sample"
+    processed = tmp_path / "processed"
+    sample.mkdir()
+    (sample / "features_sample.parquet").write_text("placeholder")
+
+    assert ensure_processed_data(sample, processed) is True
+    assert (processed / "features.parquet").exists()
+    assert (processed / SAMPLE_MARKER_NAME).exists()
+    assert is_sample_mode(sample, processed) is True

@@ -4,9 +4,12 @@ Schema (per row keyed by (date, asset)):
     market: price, market_cap, volume, daily_return, log_return,
             rolling_7d_return, rolling_30d_return, rolling_7d_volatility,
             rolling_30d_volatility, volume_zscore_30d, volume_spike_flag,
-            drawdown, max_drawdown_30d
+            drawdown, max_drawdown_30d, rebound_from_30d_low,
+            volatility_regime, market_breadth_positive_7d,
+            cross_asset_return_dispersion_30d
     sentiment: sentiment_score, sentiment_label, sentiment_3d_change,
-            sentiment_7d_change, sentiment_zscore_30d, sentiment_regime
+            sentiment_7d_change, sentiment_zscore_30d, sentiment_regime,
+            sentiment_return_corr_30d
     liquidity: tvl_usd, tvl_1d_change_pct, tvl_7d_change_pct, tvl_30d_change_pct,
             stable_total_usd, stablecoin_7d_change_pct,
             liquidity_stress_score, liquidity_stress_flag
@@ -27,7 +30,11 @@ import pandas as pd
 from src.config import PROCESSED_DIR
 from src.features.liquidity_features import build_chain_breakdown, build_liquidity_features
 from src.features.macro_features import add_crypto_macro_corr, build_macro_features
-from src.features.market_features import add_market_features
+from src.features.market_features import (
+    add_cross_asset_features,
+    add_market_features,
+    add_sentiment_return_correlation,
+)
 from src.features.onchain_features import build_onchain_features
 from src.features.regime_classifier import classify
 from src.features.sentiment_features import build_sentiment_features
@@ -105,11 +112,13 @@ def main() -> pd.DataFrame:
 
     log.info("Building market features ...")
     feats = add_market_features(market)
+    feats = add_cross_asset_features(feats)
 
     log.info("Joining sentiment ...")
     sent_feats = build_sentiment_features(sentiment) if not sentiment.empty else pd.DataFrame()
     if not sent_feats.empty:
         feats = feats.merge(sent_feats, on="date", how="left")
+        feats = add_sentiment_return_correlation(feats)
 
     log.info("Joining liquidity ...")
     liq = build_liquidity_features(chain_tvl, stables)

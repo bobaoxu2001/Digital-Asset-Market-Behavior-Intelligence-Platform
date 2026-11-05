@@ -5,16 +5,17 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from dashboard.components.charts import event_impact_bar, event_type_heatmap
-from dashboard.components.insights import strategy_insight
+from dashboard.components.charts import asset_rotation_chart, event_impact_bar, event_type_heatmap, market_breadth_chart
+from dashboard.components.insights import strategy_takeaway
 from dashboard.components.banner import render_sample_mode_banner
+from dashboard.components.layout import apply_institutional_theme, render_analyst_takeaway, render_page_header, render_sidebar_context
 from src.config import PROCESSED_DIR
 from src.utils.demo_data import ensure_processed_data
 from src.utils.io import read_parquet_safe
@@ -22,9 +23,12 @@ from src.utils.io import read_parquet_safe
 ensure_processed_data()
 
 st.set_page_config(page_title="Strategy Insights", layout="wide")
+apply_institutional_theme()
 render_sample_mode_banner()
-st.title("Strategy Insights")
-st.caption("Analyst-style synthesis: top events, event-type × asset heatmap, regime-conditional returns, and a What-Happened / Why-It-Matters / What-To-Watch panel.")
+render_page_header(
+    "Strategy Insights",
+    "A monitoring framework for catalyst sensitivity, regime-conditioned behavior, and cross-asset rotation. Not trading advice.",
+)
 
 with st.expander("Methodology note — impact score and non-causal interpretation"):
     st.markdown(
@@ -49,29 +53,58 @@ if es.empty or feats.empty:
     st.error("Run the pipeline first.")
     st.stop()
 
+render_sidebar_context(
+    "Strategy lens",
+    [
+        "Impact score ranks short-window reaction, not causal importance.",
+        "Alt/DeFi beta behavior is separated from BTC/ETH/SOL majors to show rotation.",
+        "Use this page to discuss what to monitor before macro, ETF, protocol, and exploit events.",
+    ],
+)
+
 st.subheader("Top 10 most impactful events")
-st.plotly_chart(event_impact_bar(es, top_n=10), use_container_width=True)
+st.plotly_chart(event_impact_bar(es, top_n=10), width="stretch")
 
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("Event-type x asset impact heatmap")
-    st.plotly_chart(event_type_heatmap(typeasset), use_container_width=True)
+    st.plotly_chart(event_type_heatmap(typeasset), width="stretch")
 with col2:
     st.subheader("Mean impact by event type")
     by_type = es.groupby("event_type")["impact_score"].mean().sort_values(ascending=False).reset_index()
-    fig = px.bar(by_type, x="event_type", y="impact_score", template="plotly_dark", color_discrete_sequence=["#9270CA"])
-    fig.update_layout(height=420, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure(go.Bar(x=by_type["event_type"], y=by_type["impact_score"], marker_color="#9270CA"))
+    fig.update_layout(
+        template="plotly_dark",
+        height=420,
+        margin=dict(l=10, r=10, t=10, b=10),
+        xaxis_title=None,
+        yaxis_title="Mean impact score",
+    )
+    st.plotly_chart(fig, width="stretch")
+
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Majors vs alt/DeFi beta rotation")
+    st.plotly_chart(asset_rotation_chart(feats), width="stretch")
+with col2:
+    st.subheader("Cross-asset participation")
+    st.plotly_chart(market_breadth_chart(feats), width="stretch")
 
 st.subheader("Regime-conditional return distribution")
 if not regime_cond.empty:
-    fig = px.bar(
-        regime_cond, x="regime", y="annualized_return", color="asset", barmode="group",
-        template="plotly_dark", title="Annualized return by regime (per asset)",
+    fig = go.Figure()
+    for asset, d in regime_cond.groupby("asset"):
+        fig.add_trace(go.Bar(x=d["regime"], y=d["annualized_return"], name=asset))
+    fig.update_layout(
+        barmode="group",
+        template="plotly_dark",
+        title="Annualized return by regime (per asset)",
+        xaxis_title=None,
+        yaxis_title="Annualized return",
     )
     fig.update_layout(height=420, margin=dict(l=10, r=10, t=40, b=10))
-    st.plotly_chart(fig, use_container_width=True)
-    st.dataframe(regime_cond.round(4), use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
+    st.dataframe(regime_cond.round(4), width="stretch")
 
 st.subheader("Top 10 unusual recent days (volume spike + abnormal on-chain or |return|>5%)")
 recent = feats[feats["date"] >= feats["date"].max() - pd.Timedelta(days=180)]
@@ -82,20 +115,12 @@ unusual = recent[
 ].sort_values("daily_return", key=lambda s: s.abs(), ascending=False).head(10)
 if not unusual.empty:
     cols = ["date", "asset", "regime", "daily_return", "rolling_30d_volatility",
-            "sentiment_score", "liquidity_stress_score", "onchain_activity_index"]
+            "volatility_regime", "sentiment_score", "liquidity_stress_score",
+            "market_breadth_positive_7d", "onchain_activity_index"]
     show_cols = [c for c in cols if c in unusual.columns]
-    st.dataframe(unusual[show_cols].round(4), use_container_width=True)
+    unusual_display = unusual[show_cols].copy()
+    numeric_cols = unusual_display.select_dtypes(include="number").columns
+    unusual_display[numeric_cols] = unusual_display[numeric_cols].round(4)
+    st.dataframe(unusual_display, width="stretch")
 
-st.info(strategy_insight(es, regime_cond))
-
-st.markdown("---")
-st.markdown(
-    "**What happened?** Event-driven and macro-shock days dominate the impact ranking, with DeFi-token "
-    "exposures amplifying regulatory and ETF news.\n\n"
-    "**Why it matters?** Regime-conditional returns make it clear that being mechanically long through "
-    "*Risk-off* and *Liquidity Stress* periods has historically been costly; *Momentum* and *Calm* deliver "
-    "the bulk of positive risk-adjusted returns.\n\n"
-    "**What to monitor next?** Liquidity stress score and abnormal on-chain activity flags **before** "
-    "scheduled macro events (FOMC/CPI). Their co-occurrence has historically predicted extension rather "
-    "than mean-reversion of event reactions."
-)
+render_analyst_takeaway(*strategy_takeaway(es, regime_cond, feats))
